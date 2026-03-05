@@ -37,7 +37,8 @@ function renderPage(data) {
 
     <div class="note">
       ${data.note.text}
-      <a href="${data.note.phoneLink}">${data.note.phone}</a>.
+      <a href="${data.note.phoneLink}">${data.note.phone}</a>.<br><br>
+      ${data.note.tagline}
     </div>
 
     <div class="divider"></div>`;

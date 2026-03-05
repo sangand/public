@@ -1,5 +1,5 @@
 const DATA = {
-  "name": "Gandi Santosh Kumar",
+  "name": "Santosh",
   "subtitle": "Biodata",
   "profilePhoto": {
     "caption": "8-Apr-2025 . Kanya Kumari",
@@ -28,6 +28,7 @@ const DATA = {
     { "label": "Contact", "value": ["9010902082", "8125984958"] },
   ],
   "note": {
+    "tagline": "I've plenty of knowledge about life and marriage, not just software.",
     "text": "If you are seeing this page and are skeptical or confused and not sure whether to take the next step, I'd recommend pinging me at",
     "phone": "8125984958",
     "phoneLink": "tel:+918125984958"
