@@ -1,0 +1,179 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: #f5f0eb;
+  color: #3a3a3a;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #2c2c2c;
+  letter-spacing: 0.02em;
+}
+
+.header .subtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+.profile-photo {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.profile-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.info-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+
+.info-row {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0ece7;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.info-row:first-child {
+  padding-top: 0;
+}
+
+.info-label {
+  flex: 0 0 120px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-top: 2px;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #3a3a3a;
+}
+
+.info-value .family-item {
+  margin-bottom: 4px;
+}
+
+.info-value .family-item:last-child {
+  margin-bottom: 0;
+}
+
+.photo-section {
+  margin-bottom: 28px;
+}
+
+.photo-section .caption {
+  font-size: 0.85rem;
+  color: #999;
+  text-align: center;
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.photo-section .photo-frame {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.photo-section .photo-frame img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.note {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.note a {
+  color: #4a7c6f;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.note a:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  height: 1px;
+  background: #e5ddd5;
+  margin: 36px 0;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px 12px 40px;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .info-card {
+    padding: 16px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    padding: 10px 0;
+  }
+
+  .info-label {
+    flex: none;
+    margin-bottom: 2px;
+    font-size: 0.75rem;
+  }
+
+  .info-value {
+    font-size: 0.9rem;
+  }
+}
