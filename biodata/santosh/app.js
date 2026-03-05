@@ -2,12 +2,12 @@ function renderPage(data) {
   const app = document.getElementById('app');
   document.title = `${data.subtitle} - ${data.name}`;
 
+  // let html = `
+  //   <div class="header">
+  //     <h1>${data.name}</h1>
+  //     <div class="subtitle">${data.subtitle}</div>
+  //   </div>
   let html = `
-    <div class="header">
-      <h1>${data.name}</h1>
-      <div class="subtitle">${data.subtitle}</div>
-    </div>
-
     <div class="photo-section">
       <div class="caption">${data.profilePhoto.caption}</div>
       <div class="photo-frame">

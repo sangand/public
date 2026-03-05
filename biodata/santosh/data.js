@@ -1,54 +1,57 @@
 const DATA = {
-  "name": "Edward Jenner",
+  "name": "Gandi Santosh Kumar",
   "subtitle": "Biodata",
   "profilePhoto": {
-    "caption": "2-Jul-2012 · New York",
-    "src": "images/pexels-edward-jenner-4033148.jpg",
-    "alt": "Edward Jenner"
+    "caption": "8-Apr-2025 . Kanya Kumari",
+    "src": "images/image1.png",
+    "alt": "Santosh Kumar"
   },
   "info": [
-    { "label": "Name", "value": "Edward Jenner" },
-    { "label": "Born", "value": "23-Feb-1974, 3:14 PM" },
-    { "label": "Physique", "value": "182 cms, 81 kg" },
-    { "label": "Education", "value": "Masters in Chemistry" },
-    { "label": "Profession", "value": "Clinical Analyst, Pfizer, Bay Area, US" },
-    { "label": "Income", "value": "~130k USD / year" },
+    { "label": "Name", "value": "Gandi Santosh Kumar" },
+    { "label": "Born", "value": "10-Jan-1989, 1:46 PM" },
+    { "label": "Physique", "value": "169 cms, fair, lean, 64 kg" },
+    { "label": "Horoscope", "value": "Dhanishta-3, Kumbha rāsi" },
+    { "label": "Education", "value": "B.Tech.(CSE), Andhra university college of engineering" },
+    { "label": "Profession", "value": ["R&D Staff Software Engineer", "Broadcom", "Financial district, Hyderabad"] },
+    { "label": "Income", "value": "~3 crores / year" },
     {
       "label": "Family",
       "value": [
-        "Father – Expired (Medico)",
-        "Mother – Expired (2004)",
+        "Father - Farming + Business",
+        "Mother - Expired (2023)",
         "Sister (younger) – Married, 2 kids",
-        "Bro-in-law – Investment Advisor"
+        "Bro-in-law – Chief manager (SBI)"
       ]
     },
-    { "label": "Address", "value": "431, Bay Area, US" }
+    { "label": "Caste", "value": "Koppula Velama" },
+    { "label": "Address", "value": "Naidu colony, Bobbili, Vizianagaram" },
+    { "label": "Contact", "value": ["9010902082", "8125984958"] },
   ],
   "note": {
     "text": "If you are seeing this page and are skeptical or confused and not sure whether to take the next step, I'd recommend pinging me at",
-    "phone": "+1 (678) 943-2142",
-    "phoneLink": "tel:+16789432142"
+    "phone": "8125984958",
+    "phoneLink": "tel:+918125984958"
   },
   "photos": [
     {
-      "caption": "4-Mar-2012 · New York",
-      "src": "images/pexels-karola-g-4047150.jpg",
-      "alt": "New York, Mar 2012"
+      "caption": "5-Jan-2025 · Nagarjuna Sagar",
+      "src": "images/image2.png",
+      "alt": "Jan 2025, Nagarjuna Sagar"
     },
     {
-      "caption": "13-Aug-2012 · Tampa, Florida",
-      "src": "images/pexels-karola-g-4968698.jpg",
-      "alt": "Tampa, Florida, Aug 2012"
+      "caption": "9-Apr-2025 · Kovalam, Kerala",
+      "src": "images/image3.png",
+      "alt": "Apr 2025, Kovalam, Kerala"
     },
     {
-      "caption": "23-Sep-2012 · Dallas, Texas",
-      "src": "images/pexels-magda-ehlers-pexels-3735605.jpg",
-      "alt": "Dallas, Texas, Sep 2012"
+      "caption": "15-May-2025 · Vijayawada",
+      "src": "images/image4.png",
+      "alt": "May 2025, Vijayawada"
     },
     {
-      "caption": "2-Oct-2012 · Dallas, Texas",
-      "src": "images/pexels-polina-tankilevitch-3735707.jpg",
-      "alt": "Dallas, Texas, Oct 2012"
+      "caption": "15-May-2025 · Vijayawada",
+      "src": "images/image5.png",
+      "alt": "May 2025, Vijayawada"
     }
   ]
 };
