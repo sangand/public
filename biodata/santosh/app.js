@@ -9,10 +9,10 @@ function renderPage(data) {
   //   </div>
   let html = `
     <div class="photo-section">
-      <div class="caption">${data.profilePhoto.caption}</div>
       <div class="photo-frame">
         <img src="${data.profilePhoto.src}" alt="${data.profilePhoto.alt}">
       </div>
+      <div class="caption">${data.profilePhoto.caption}</div>
     </div>
 
     <div class="info-card">`;
@@ -45,10 +45,10 @@ function renderPage(data) {
   for (const photo of data.photos) {
     html += `
     <div class="photo-section">
-      <div class="caption">${photo.caption}</div>
       <div class="photo-frame">
         <img src="${photo.src}" alt="${photo.alt}">
       </div>
+      <div class="caption">${photo.caption}</div>
     </div>`;
   }
 
