@@ -3,7 +3,7 @@ const DATA = {
   "subtitle": "Biodata",
   "profilePhoto": {
     "caption": "8-Apr-2025 . Kanya Kumari",
-    "src": "images/image1.png",
+    "src": "images/image1.jpg",
     "alt": "Santosh Kumar"
   },
   "info": [
@@ -41,17 +41,17 @@ const DATA = {
     },
     {
       "caption": "9-Apr-2025 · Kovalam, Kerala",
-      "src": "images/image3.png",
+      "src": "images/image3.jpg",
       "alt": "Apr 2025, Kovalam, Kerala"
     },
     {
       "caption": "15-May-2025 · Vijayawada",
-      "src": "images/image4.png",
+      "src": "images/image4.jpg",
       "alt": "May 2025, Vijayawada"
     },
     {
       "caption": "15-May-2025 · Vijayawada",
-      "src": "images/image5.png",
+      "src": "images/image5.jpg",
       "alt": "May 2025, Vijayawada"
     }
   ]
