@@ -61,32 +61,43 @@ renderPage(DATA);
 const FIRESTORE_PROJECT = 'finances-388507';
 const FIRESTORE_COLLECTION = 'biodata-visits';
 
-function logVisit() {
-  fetch('https://ipapi.co/json/')
-    .then(res => res.json())
-    .then(geo => {
-      const visit = {
-        fields: {
-          timestamp: { stringValue: new Date().toISOString() },
-          ip: { stringValue: geo.ip || 'unknown' },
-          city: { stringValue: geo.city || 'unknown' },
-          region: { stringValue: geo.region || 'unknown' },
-          country: { stringValue: geo.country_name || 'unknown' },
-          org: { stringValue: geo.org || 'unknown' },
-          latitude: { doubleValue: geo.latitude || 0 },
-          longitude: { doubleValue: geo.longitude || 0 },
-          browser: { stringValue: navigator.userAgent },
-          referrer: { stringValue: document.referrer || 'direct' },
-          page: { stringValue: window.location.href }
-        }
-      };
+function saveVisit(geo) {
+  const visit = {
+    fields: {
+      timestamp: { stringValue: new Date().toISOString() },
+      ip: { stringValue: geo.ip || 'unknown' },
+      city: { stringValue: geo.city || 'unknown' },
+      region: { stringValue: geo.region || 'unknown' },
+      country: { stringValue: geo.country || 'unknown' },
+      org: { stringValue: geo.org || 'unknown' },
+      latitude: { doubleValue: geo.lat || 0 },
+      longitude: { doubleValue: geo.lon || 0 },
+      browser: { stringValue: navigator.userAgent },
+      referrer: { stringValue: document.referrer || 'direct' },
+      page: { stringValue: window.location.href }
+    }
+  };
 
-      return fetch(
-        `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visit) }
-      );
-    })
-    .catch(() => {});
+  return fetch(
+    `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visit) }
+  );
+}
+
+function fetchGeo() {
+  return fetch('https://ipapi.co/json/')
+    .then(res => res.json())
+    .then(g => ({ ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude }))
+    .catch(() =>
+      fetch('http://ip-api.com/json/')
+        .then(res => res.json())
+        .then(g => ({ ip: g.query, city: g.city, region: g.regionName, country: g.country, org: g.org, lat: g.lat, lon: g.lon }))
+    )
+    .catch(() => ({ ip: 'unknown', city: 'unknown', region: 'unknown', country: 'unknown', org: 'unknown', lat: 0, lon: 0 }));
+}
+
+function logVisit() {
+  fetchGeo().then(saveVisit).catch(() => {});
 }
 
 logVisit();
