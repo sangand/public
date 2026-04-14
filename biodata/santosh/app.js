@@ -57,3 +57,36 @@ function renderPage(data) {
 }
 
 renderPage(DATA);
+
+const FIRESTORE_PROJECT = 'finances-388507';
+const FIRESTORE_COLLECTION = 'biodata-visits';
+
+function logVisit() {
+  fetch('https://ipapi.co/json/')
+    .then(res => res.json())
+    .then(geo => {
+      const visit = {
+        fields: {
+          timestamp: { stringValue: new Date().toISOString() },
+          ip: { stringValue: geo.ip || 'unknown' },
+          city: { stringValue: geo.city || 'unknown' },
+          region: { stringValue: geo.region || 'unknown' },
+          country: { stringValue: geo.country_name || 'unknown' },
+          org: { stringValue: geo.org || 'unknown' },
+          latitude: { doubleValue: geo.latitude || 0 },
+          longitude: { doubleValue: geo.longitude || 0 },
+          browser: { stringValue: navigator.userAgent },
+          referrer: { stringValue: document.referrer || 'direct' },
+          page: { stringValue: window.location.href }
+        }
+      };
+
+      return fetch(
+        `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visit) }
+      );
+    })
+    .catch(() => {});
+}
+
+logVisit();
