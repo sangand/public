@@ -89,9 +89,12 @@ function fetchGeo() {
     .then(res => res.json())
     .then(g => ({ ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude }))
     .catch(() =>
-      fetch('https://freeipapi.com/api/json/')
+      fetch('https://ipinfo.io/json')
         .then(res => res.json())
-        .then(g => ({ ip: g.ipAddress, city: g.cityName, region: g.regionName, country: g.countryName, org: g.asnOrganization || 'unknown', lat: g.latitude, lon: g.longitude }))
+        .then(g => {
+          const [lat, lon] = (g.loc || '0,0').split(',').map(Number);
+          return { ip: g.ip, city: g.city, region: g.region, country: g.country, org: g.org || 'unknown', lat, lon };
+        })
     )
     .catch(() => ({ ip: 'unknown', city: 'unknown', region: 'unknown', country: 'unknown', org: 'unknown', lat: 0, lon: 0 }));
 }
