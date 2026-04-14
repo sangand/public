@@ -112,11 +112,17 @@
     const COLLECTION = 'biodata-visits';
 
     function parseBrowser(ua) {
-      if (ua.includes('Edg/')) return 'Edge';
-      if (ua.includes('Chrome/') && !ua.includes('Edg/')) return 'Chrome';
-      if (ua.includes('Firefox/')) return 'Firefox';
-      if (ua.includes('Safari/') && !ua.includes('Chrome/')) return 'Safari';
-      return ua.substring(0, 50);
+      const mobile = /Mobile|Android/i.test(ua) ? ' Mobile' : '';
+      let name, ver;
+
+      if ((ver = ua.match(/Edg\/(\d+)/))) name = 'Edge';
+      else if ((ver = ua.match(/OPR\/(\d+)/))) name = 'Opera';
+      else if ((ver = ua.match(/Chrome\/(\d+)/))) name = 'Chrome';
+      else if ((ver = ua.match(/Firefox\/(\d+)/))) name = 'Firefox';
+      else if ((ver = ua.match(/Version\/(\d+).*Safari/))) name = 'Safari';
+      else return ua.substring(0, 50);
+
+      return `${name}${mobile} ${ver[1]}`;
     }
 
     function formatDate(iso) {
