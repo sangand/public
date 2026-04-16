@@ -122,7 +122,7 @@
       else if ((ver = ua.match(/Version\/(\d+).*Safari/))) name = 'Safari';
       else return ua.substring(0, 50);
 
-      return `${name}${mobile} ${ver[1]}`;
+      return `${name}${mobile}/${ver[1]}`;
     }
 
     function formatDate(iso) {

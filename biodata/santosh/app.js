@@ -89,18 +89,32 @@ function fetchGeo() {
     .then(res => res.json())
     .then(g => ({ ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude }))
     .catch(() =>
-      fetch('https://ipinfo.io/json')
+      fetch('https://reallyfreegeoip.org/json/')
         .then(res => res.json())
-        .then(g => {
-          const [lat, lon] = (g.loc || '0,0').split(',').map(Number);
-          return { ip: g.ip, city: g.city, region: g.region, country: g.country, org: g.org || 'unknown', lat, lon };
-        })
+        .then(g => ({ ip: g.ip, city: g.city, region: g.region_name, country: g.country_name, org: 'unknown', lat: g.latitude, lon: g.longitude }))
     )
     .catch(() => ({ ip: 'unknown', city: 'unknown', region: 'unknown', country: 'unknown', org: 'unknown', lat: 0, lon: 0 }));
 }
 
+function fetchIpv4() {
+  return fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(d => d.ip || null)
+    .catch(() => null);
+}
+
+function preferIpv4(geo, ipv4) {
+  if (!ipv4 || typeof ipv4 !== 'string') return geo;
+  if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(ipv4.trim())) return geo;
+  if (!geo.ip || geo.ip === 'unknown') return { ...geo, ip: ipv4 };
+  if (geo.ip.includes(':')) return { ...geo, ip: ipv4 };
+  return geo;
+}
+
 function logVisit() {
-  fetchGeo().then(saveVisit).catch(() => {});
+  Promise.all([fetchGeo(), fetchIpv4()])
+    .then(([geo, ipv4]) => saveVisit(preferIpv4(geo, ipv4)))
+    .catch(() => {});
 }
 
 logVisit();
