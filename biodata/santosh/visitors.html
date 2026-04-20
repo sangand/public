@@ -81,6 +81,83 @@
       padding: 40px;
       color: #999;
     }
+
+    .pagination {
+      display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 20px 24px;
+      margin-top: 20px;
+      padding: 16px 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      font-size: 0.85rem;
+    }
+
+    .pagination.visible { display: flex; }
+
+    .pagination .page-size-group,
+    .pagination .nav-group {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .pagination label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+    }
+
+    .pagination .nav-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pagination .pagination-sub {
+      color: #666;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .pagination button {
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1;
+      min-width: 2.5rem;
+      padding: 8px 12px;
+      border: 1px solid #4a7c6f;
+      border-radius: 8px;
+      background: #4a7c6f;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .pagination button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .pagination button:not(:disabled):hover {
+      background: #3d6a5f;
+    }
+
+    .pagination select {
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #e5ddd5;
+      background: #faf8f5;
+    }
+
   </style>
 </head>
 <body>
@@ -105,6 +182,30 @@
       </thead>
       <tbody id="tbody"></tbody>
     </table>
+  </div>
+
+  <div class="pagination" id="pagination" aria-label="Pagination">
+    <div class="page-size-group">
+      <label>
+        Rows per page
+        <select id="pageSize">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </label>
+      <span class="pagination-sub" id="showingRange"></span>
+    </div>
+    <div class="nav-group">
+      <span class="pagination-sub" id="pageRange"></span>
+      <div class="nav-buttons">
+        <button type="button" id="btnFirst" aria-label="First page">&#171;</button>
+        <button type="button" id="btnPrev" aria-label="Previous page">&#8249;</button>
+        <button type="button" id="btnNext" aria-label="Next page">&#8250;</button>
+        <button type="button" id="btnLast" aria-label="Last page">&#187;</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -147,28 +248,29 @@
       return '–';
     }
 
-    fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/${COLLECTION}?pageSize=1000`)
-      .then(res => res.json())
-      .then(data => {
-        const docs = data.documents || [];
+    let allDocs = [];
+    let currentPage = 1;
+    let pageSize = 25;
 
-        docs.sort((a, b) => {
-          const ta = getField(a, 'timestamp');
-          const tb = getField(b, 'timestamp');
-          return tb.localeCompare(ta);
-        });
+    function totalPages() {
+      return Math.max(1, Math.ceil(allDocs.length / pageSize));
+    }
 
-        document.getElementById('count').textContent = `${docs.length} visit${docs.length !== 1 ? 's' : ''}`;
-        document.getElementById('loading').style.display = 'none';
+    function renderTablePage() {
+      const tbody = document.getElementById('tbody');
+      const total = allDocs.length;
+      const pages = totalPages();
+      if (currentPage > pages) currentPage = pages;
 
-        const table = document.getElementById('table');
-        const tbody = document.getElementById('tbody');
-        table.style.display = 'table';
+      const start = (currentPage - 1) * pageSize;
+      const slice = allDocs.slice(start, start + pageSize);
 
-        docs.forEach((doc, i) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${i + 1}</td>
+      tbody.innerHTML = '';
+      slice.forEach((doc, i) => {
+        const rowNum = start + i + 1;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${rowNum}</td>
             <td>${formatDate(getField(doc, 'timestamp'))}</td>
             <td>${getField(doc, 'ip')}</td>
             <td>${getField(doc, 'city')}</td>
@@ -178,8 +280,83 @@
             <td class="browser" title="${getField(doc, 'browser')}">${parseBrowser(getField(doc, 'browser'))}</td>
             <td>${getField(doc, 'referrer')}</td>
             <td>${getField(doc, 'org')}</td>`;
-          tbody.appendChild(tr);
+        tbody.appendChild(tr);
+      });
+
+      const end = Math.min(start + slice.length, total);
+      const showingEl = document.getElementById('showingRange');
+      const pageEl = document.getElementById('pageRange');
+      if (total === 0) {
+        showingEl.textContent = 'No rows';
+        pageEl.textContent = '';
+      } else {
+        showingEl.textContent = `Showing ${start + 1}–${end} of ${total}`;
+        pageEl.textContent = `Page ${currentPage} of ${pages}`;
+      }
+
+      const atFirst = currentPage <= 1;
+      const atLast = currentPage >= pages;
+      document.getElementById('btnFirst').disabled = atFirst;
+      document.getElementById('btnPrev').disabled = atFirst;
+      document.getElementById('btnNext').disabled = atLast;
+      document.getElementById('btnLast').disabled = atLast;
+    }
+
+    document.getElementById('pageSize').addEventListener('change', (e) => {
+      pageSize = Number(e.target.value);
+      currentPage = 1;
+      renderTablePage();
+    });
+
+    document.getElementById('btnFirst').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage = 1;
+        renderTablePage();
+      }
+    });
+
+    document.getElementById('btnPrev').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        renderTablePage();
+      }
+    });
+
+    document.getElementById('btnNext').addEventListener('click', () => {
+      if (currentPage < totalPages()) {
+        currentPage++;
+        renderTablePage();
+      }
+    });
+
+    document.getElementById('btnLast').addEventListener('click', () => {
+      const pages = totalPages();
+      if (currentPage < pages) {
+        currentPage = pages;
+        renderTablePage();
+      }
+    });
+
+    fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/${COLLECTION}?pageSize=1000`)
+      .then(res => res.json())
+      .then(data => {
+        allDocs = data.documents || [];
+
+        allDocs.sort((a, b) => {
+          const ta = getField(a, 'timestamp');
+          const tb = getField(b, 'timestamp');
+          return tb.localeCompare(ta);
         });
+
+        document.getElementById('count').textContent = `${allDocs.length} visit${allDocs.length !== 1 ? 's' : ''}`;
+        document.getElementById('loading').style.display = 'none';
+
+        document.getElementById('table').style.display = 'table';
+        document.getElementById('pagination').classList.add('visible');
+
+        pageSize = Number(document.getElementById('pageSize').value);
+        currentPage = 1;
+        renderTablePage();
       })
       .catch(err => {
         document.getElementById('loading').textContent = 'Failed to load visitor data.';
