@@ -158,6 +158,29 @@
       background: #faf8f5;
     }
 
+    .pagination input[type="number"]#pageInput {
+      font-family: inherit;
+      font-size: 0.85rem;
+      width: 3.5rem;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #e5ddd5;
+      background: #faf8f5;
+      text-align: center;
+      -moz-appearance: textfield;
+    }
+
+    .pagination input[type="number"]#pageInput::-webkit-outer-spin-button,
+    .pagination input[type="number"]#pageInput::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .pagination .goto-page-wrap {
+      display: inline-flex;
+      align-items: center;
+    }
+
   </style>
 </head>
 <body>
@@ -199,6 +222,9 @@
     </div>
     <div class="nav-group">
       <span class="pagination-sub" id="pageRange"></span>
+      <div class="goto-page-wrap">
+        <input type="number" id="pageInput" min="1" step="1" inputmode="numeric" aria-label="Go to page number" title="Press Enter or leave this field to go to that page">
+      </div>
       <div class="nav-buttons">
         <button type="button" id="btnFirst" aria-label="First page">&#171;</button>
         <button type="button" id="btnPrev" aria-label="Previous page">&#8249;</button>
@@ -216,7 +242,9 @@
       const mobile = /Mobile|Android/i.test(ua) ? ' Mobile' : '';
       let name, ver;
 
-      if ((ver = ua.match(/Edg\/(\d+)/))) name = 'Edge';
+      if ((ver = ua.match(/WhatsApp\/(\d+)/i))) return `WhatsApp/${ver[1]}`;
+      else if ((ver = ua.match(/MiuiBrowser\/(\d+)/i))) name = 'MiuiBrowser';
+      else if ((ver = ua.match(/Edg\/(\d+)/))) name = 'Edge';
       else if ((ver = ua.match(/OPR\/(\d+)/))) name = 'Opera';
       else if ((ver = ua.match(/Chrome\/(\d+)/))) name = 'Chrome';
       else if ((ver = ua.match(/Firefox\/(\d+)/))) name = 'Firefox';
@@ -300,6 +328,29 @@
       document.getElementById('btnPrev').disabled = atFirst;
       document.getElementById('btnNext').disabled = atLast;
       document.getElementById('btnLast').disabled = atLast;
+
+      const pageInput = document.getElementById('pageInput');
+      if (total === 0) {
+        pageInput.value = '';
+        pageInput.disabled = true;
+        pageInput.removeAttribute('max');
+      } else {
+        pageInput.disabled = false;
+        pageInput.max = String(pages);
+        pageInput.min = '1';
+        pageInput.value = String(currentPage);
+      }
+    }
+
+    function goToPageFromInput() {
+      const total = allDocs.length;
+      if (total === 0) return;
+      const pages = totalPages();
+      let n = parseInt(document.getElementById('pageInput').value, 10);
+      if (Number.isNaN(n)) return;
+      n = Math.min(Math.max(1, n), pages);
+      currentPage = n;
+      renderTablePage();
     }
 
     document.getElementById('pageSize').addEventListener('change', (e) => {
@@ -326,6 +377,15 @@
       if (currentPage < totalPages()) {
         currentPage++;
         renderTablePage();
+      }
+    });
+
+    document.getElementById('pageInput').addEventListener('change', goToPageFromInput);
+
+    document.getElementById('pageInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        goToPageFromInput();
       }
     });
 
