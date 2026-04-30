@@ -25,13 +25,13 @@ const DATA = {
     },
     { "label": "Caste", "value": "Koppula Velama" },
     { "label": "Address", "value": "Naidu colony, Bobbili, Vizianagaram" },
-    { "label": "Contact", "value": ["9010902082", "8125984958"] },
+    { "label": "Contact", "value": ["9010902082", "9963495916"] },
   ],
   "note": {
     "tagline": "I've plenty of knowledge about life and marriage, not just software.",
     "text": "If you are seeing this page and are skeptical or confused and not sure whether to take the next step, I'd recommend pinging me at",
-    "phone": "8125984958",
-    "phoneLink": "tel:+918125984958"
+    "phone": "9963495916",
+    "phoneLink": "tel:+919963495916"
   },
   "photos": [
     {
