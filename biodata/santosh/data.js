@@ -23,7 +23,7 @@ const DATA = {
         "Bro-in-law – Chief manager (SBI)"
       ]
     },
-    { "label": "Caste", "value": "Koppula Velama" },
+    { "label": "Caste", "value": "Velama" },
     { "label": "Address", "value": "Naidu colony, Bobbili, Vizianagaram" },
     { "label": "Contact", "value": ["9010902082", "9963495916"] },
   ],
