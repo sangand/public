@@ -13,7 +13,15 @@ const DATA = {
     { "label": "Horoscope", "value": "Dhanishta-3, Kumbha rāsi" },
     { "label": "Education", "value": "B.Tech.(CSE), Andhra university college of engineering" },
     { "label": "Profession", "value": ["R&D Staff Software Engineer", "Broadcom", "Financial district, Hyderabad"] },
-    { "label": "Income", "value": "~3 crores / year" },
+    {
+      "label": "Income",
+      "value": "~3 crores / year",
+      "highlight": true,
+      "proofs": [
+        { "label": "ITR Ack", "url": "ACK806577370300626.pdf" },
+        { "label": "Jun 2026 Payslip", "url": "JUN_2026.pdf" }
+      ]
+    },
     {
       "label": "Family",
       "value": [
