@@ -22,6 +22,7 @@ const DATA = {
         { "label": "Jun 2026 Payslip", "url": "JUN_2026.pdf" }
       ]
     },
+    { "label": "Net worth", "value": "~10 to 15 crores" },
     {
       "label": "Family",
       "value": [
