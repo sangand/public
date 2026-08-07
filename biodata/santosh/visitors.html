@@ -193,6 +193,7 @@
         <tr>
           <th>#</th>
           <th>Date &amp; Time</th>
+          <th>Viewed</th>
           <th>IP Address</th>
           <th>City</th>
           <th>Region</th>
@@ -267,6 +268,10 @@
       return f?.stringValue || f?.doubleValue?.toString() || '–';
     }
 
+    function getAction(doc) {
+      return doc.fields?.action?.stringValue || 'Page';
+    }
+
     function mapsLink(doc) {
       const lat = doc.fields?.latitude?.doubleValue;
       const lng = doc.fields?.longitude?.doubleValue;
@@ -300,6 +305,7 @@
         tr.innerHTML = `
             <td>${rowNum}</td>
             <td>${formatDate(getField(doc, 'timestamp'))}</td>
+            <td>${getAction(doc)}</td>
             <td>${getField(doc, 'ip')}</td>
             <td>${getField(doc, 'city')}</td>
             <td>${getField(doc, 'region')}</td>

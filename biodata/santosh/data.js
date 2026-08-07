@@ -19,7 +19,7 @@ const DATA = {
       "highlight": true,
       "proofs": [
         { "label": "ITR Ack", "url": "ACK806577370300626.pdf" },
-        { "label": "Jun 2026 Payslip", "url": "JUN_2026.pdf" }
+        { "label": "Jun 2026 Payslip", "url": "JUN_2026.pdf", "logLabel": "Payslip" }
       ]
     },
     { "label": "Net worth", "value": "~10 to 15 crores" },

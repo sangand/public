@@ -32,7 +32,7 @@ function renderPage(data) {
 
     if (item.proofs && Array.isArray(item.proofs)) {
       html += `<span class="proof-links">` +
-        item.proofs.map(p => `<a href="${p.url}" target="_blank" rel="noopener" class="proof-badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${p.label}</span></a>`).join('') +
+        item.proofs.map(p => `<a href="${p.url}" target="_blank" rel="noopener" class="proof-badge" data-log-label="${p.logLabel || p.label}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${p.label}</span></a>`).join('') +
         `</span>`;
     }
 
@@ -67,7 +67,7 @@ renderPage(DATA);
 const FIRESTORE_PROJECT = 'finances-388507';
 const FIRESTORE_COLLECTION = 'biodata-visits';
 
-function saveVisit(geo) {
+function saveVisit(geo, action) {
   const visit = {
     fields: {
       timestamp: { stringValue: new Date().toISOString() },
@@ -80,7 +80,8 @@ function saveVisit(geo) {
       longitude: { doubleValue: geo.lon || 0 },
       browser: { stringValue: navigator.userAgent },
       referrer: { stringValue: document.referrer || 'direct' },
-      page: { stringValue: window.location.href }
+      page: { stringValue: window.location.href },
+      action: { stringValue: action || 'Page' }
     }
   };
 
@@ -117,10 +118,21 @@ function preferIpv4(geo, ipv4) {
   return geo;
 }
 
-function logVisit() {
-  Promise.all([fetchGeo(), fetchIpv4()])
-    .then(([geo, ipv4]) => saveVisit(preferIpv4(geo, ipv4)))
-    .catch(() => {});
+let geoPromise = null;
+
+function getGeo() {
+  if (!geoPromise) {
+    geoPromise = Promise.all([fetchGeo(), fetchIpv4()]).then(([geo, ipv4]) => preferIpv4(geo, ipv4));
+  }
+  return geoPromise;
+}
+
+function logVisit(action) {
+  getGeo().then(geo => saveVisit(geo, action)).catch(() => {});
 }
 
 logVisit();
+
+document.querySelectorAll('.proof-badge').forEach(link => {
+  link.addEventListener('click', () => logVisit(link.dataset.logLabel));
+});
