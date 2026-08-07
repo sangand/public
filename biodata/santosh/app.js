@@ -32,7 +32,7 @@ function renderPage(data) {
 
     if (item.proofs && Array.isArray(item.proofs)) {
       html += `<span class="proof-links">` +
-        item.proofs.map(p => `<a href="${p.url}" target="_blank" rel="noopener" class="proof-badge" data-log-label="${p.logLabel || p.label}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${p.label}</span></a>`).join('') +
+        item.proofs.map(p => `<button type="button" class="proof-badge" data-display-title="${p.label}" data-log-label="${p.logLabel || p.label}" data-proof-image="${p.image}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span>${p.label}</span></button>`).join('') +
         `</span>`;
     }
 
@@ -68,6 +68,7 @@ const FIRESTORE_PROJECT = 'finances-388507';
 const FIRESTORE_COLLECTION = 'biodata-visits';
 
 function saveVisit(geo, action) {
+  const pageValue = action ? `Proof: ${action}` : window.location.href;
   const visit = {
     fields: {
       timestamp: { stringValue: new Date().toISOString() },
@@ -80,14 +81,19 @@ function saveVisit(geo, action) {
       longitude: { doubleValue: geo.lon || 0 },
       browser: { stringValue: navigator.userAgent },
       referrer: { stringValue: document.referrer || 'direct' },
-      page: { stringValue: window.location.href },
+      page: { stringValue: pageValue },
       action: { stringValue: action || 'Page' }
     }
   };
 
   return fetch(
     `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(visit) }
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(visit),
+      keepalive: true
+    }
   );
 }
 
@@ -133,6 +139,101 @@ function logVisit(action) {
 
 logVisit();
 
-document.querySelectorAll('.proof-badge').forEach(link => {
-  link.addEventListener('click', () => logVisit(link.dataset.logLabel));
+function createProofModal() {
+  if (document.getElementById('proofModal')) return;
+
+  const modalHtml = `
+    <div id="proofModal" class="proof-modal" aria-hidden="true" role="dialog">
+      <div class="proof-modal-content">
+        <div class="proof-modal-header">
+          <span class="proof-modal-title" id="proofModalTitle">Income Proof</span>
+          <button type="button" class="proof-modal-close" id="proofModalClose" aria-label="Close">&times;</button>
+        </div>
+        <div class="proof-modal-body">
+          <div class="proof-image-container">
+            <img id="proofModalImg" src="" alt="Income Proof">
+            <div class="proof-protection-overlay"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  const modal = document.getElementById('proofModal');
+  const closeBtn = document.getElementById('proofModalClose');
+
+  function closeModal() {
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal || e.target.classList.contains('proof-modal-body')) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeModal();
+    }
+  });
+}
+
+function openProofModal(displayTitle, logLabel, imageSrc) {
+  createProofModal();
+  const modal = document.getElementById('proofModal');
+  const title = document.getElementById('proofModalTitle');
+  const img = document.getElementById('proofModalImg');
+
+  title.textContent = displayTitle;
+  img.src = imageSrc;
+
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+
+  logVisit(logLabel);
+}
+
+document.addEventListener('click', (e) => {
+  const button = e.target.closest('.proof-badge');
+  if (!button) return;
+
+  const displayTitle = button.dataset.displayTitle || button.textContent.trim();
+  const logLabel = button.dataset.logLabel || displayTitle;
+  const imageSrc = button.dataset.proofImage;
+
+  if (imageSrc) {
+    openProofModal(displayTitle, logLabel, imageSrc);
+  }
+});
+
+// Prevent right-click on modal and images
+document.addEventListener('contextmenu', (e) => {
+  if (e.target.closest('#proofModal') || e.target.tagName === 'IMG') {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// Prevent dragging images
+document.addEventListener('dragstart', (e) => {
+  if (e.target.tagName === 'IMG' || e.target.closest('#proofModal')) {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// Disable print / save keyboard shortcuts when modal is open
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('proofModal');
+  if (modal && modal.classList.contains('open')) {
+    if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'u'].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+      return false;
+    }
+  }
 });

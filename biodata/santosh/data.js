@@ -18,8 +18,8 @@ const DATA = {
       "value": "~3 crores / year",
       "highlight": true,
       "proofs": [
-        { "label": "ITR Ack", "url": "ACK806577370300626.pdf" },
-        { "label": "Jun 2026 Payslip", "url": "JUN_2026.pdf", "logLabel": "Payslip" }
+        { "label": "ITR Ack", "image": "images/proof_itr-1.png" },
+        { "label": "Jun 2026 Payslip", "logLabel": "Payslip", "image": "images/proof_payslip-1.png" }
       ]
     },
     { "label": "Net worth", "value": "~10 to 15 crores" },

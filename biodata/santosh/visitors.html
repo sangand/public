@@ -68,6 +68,27 @@
       white-space: nowrap;
     }
 
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .badge-main {
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+
+    .badge-proof {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
     td a {
       color: #4a7c6f;
       text-decoration: none;
@@ -211,6 +232,14 @@
   <div class="pagination" id="pagination" aria-label="Pagination">
     <div class="page-size-group">
       <label>
+        Filter
+        <select id="pageFilter">
+          <option value="all">All Visits</option>
+          <option value="main">Biodata Only</option>
+          <option value="proofs">Income Proofs Only</option>
+        </select>
+      </label>
+      <label>
         Rows per page
         <select id="pageSize">
           <option value="10">10</option>
@@ -268,8 +297,57 @@
       return f?.stringValue || f?.doubleValue?.toString() || '–';
     }
 
-    function getAction(doc) {
-      return doc.fields?.action?.stringValue || 'Page';
+    function getProofLabel(doc) {
+      const p = getField(doc, 'page');
+      const act = getField(doc, 'action');
+
+      let label = null;
+      if (p && p.startsWith('Proof:')) {
+        label = p.replace(/^Proof:\s*/i, '').trim();
+      } else if (act && act !== 'Page' && act !== 'NONE' && act !== 'None' && act !== '–') {
+        label = act;
+      } else if (p && (p.toLowerCase().includes('proof') || p.endsWith('.pdf'))) {
+        if (p.includes('JUN_2026') || p.toLowerCase().includes('payslip')) label = 'Payslip';
+        else if (p.includes('ACK') || p.toLowerCase().includes('itr')) label = 'ITR Ack';
+        else label = 'Income Proof';
+      }
+
+      if (label === 'Jun 2026 Payslip') return 'Payslip';
+      return label;
+    }
+
+    function isProofDoc(doc) {
+      return getProofLabel(doc) !== null;
+    }
+
+    function formatPageBadge(doc) {
+      const label = getProofLabel(doc);
+      if (label) {
+        return `<span class="badge badge-proof">${label}</span>`;
+      }
+      return '<span class="badge badge-main">Biodata</span>';
+    }
+
+    function getFilteredDocs() {
+      const filterVal = document.getElementById('pageFilter')?.value || 'all';
+      if (filterVal === 'main') {
+        return allDocs.filter(doc => !isProofDoc(doc));
+      } else if (filterVal === 'proofs') {
+        return allDocs.filter(doc => isProofDoc(doc));
+      }
+      return allDocs;
+    }
+
+    function updateCounts() {
+      const total = allDocs.length;
+      const proofCount = allDocs.filter(isProofDoc).length;
+      const mainCount = total - proofCount;
+
+      let text = `${total} visit${total !== 1 ? 's' : ''}`;
+      if (proofCount > 0) {
+        text += ` (${mainCount} Biodata · ${proofCount} Income Proof${proofCount !== 1 ? 's' : ''})`;
+      }
+      document.getElementById('count').textContent = text;
     }
 
     function mapsLink(doc) {
@@ -286,17 +364,19 @@
     let pageSize = 25;
 
     function totalPages() {
-      return Math.max(1, Math.ceil(allDocs.length / pageSize));
+      const docs = getFilteredDocs();
+      return Math.max(1, Math.ceil(docs.length / pageSize));
     }
 
     function renderTablePage() {
       const tbody = document.getElementById('tbody');
-      const total = allDocs.length;
+      const docs = getFilteredDocs();
+      const total = docs.length;
       const pages = totalPages();
       if (currentPage > pages) currentPage = pages;
 
       const start = (currentPage - 1) * pageSize;
-      const slice = allDocs.slice(start, start + pageSize);
+      const slice = docs.slice(start, start + pageSize);
 
       tbody.innerHTML = '';
       slice.forEach((doc, i) => {
@@ -305,7 +385,7 @@
         tr.innerHTML = `
             <td>${rowNum}</td>
             <td>${formatDate(getField(doc, 'timestamp'))}</td>
-            <td>${getAction(doc)}</td>
+            <td>${formatPageBadge(doc)}</td>
             <td>${getField(doc, 'ip')}</td>
             <td>${getField(doc, 'city')}</td>
             <td>${getField(doc, 'region')}</td>
@@ -349,7 +429,8 @@
     }
 
     function goToPageFromInput() {
-      const total = allDocs.length;
+      const docs = getFilteredDocs();
+      const total = docs.length;
       if (total === 0) return;
       const pages = totalPages();
       let n = parseInt(document.getElementById('pageInput').value, 10);
@@ -358,6 +439,11 @@
       currentPage = n;
       renderTablePage();
     }
+
+    document.getElementById('pageFilter').addEventListener('change', () => {
+      currentPage = 1;
+      renderTablePage();
+    });
 
     document.getElementById('pageSize').addEventListener('change', (e) => {
       pageSize = Number(e.target.value);
@@ -414,7 +500,7 @@
           return tb.localeCompare(ta);
         });
 
-        document.getElementById('count').textContent = `${allDocs.length} visit${allDocs.length !== 1 ? 's' : ''}`;
+        updateCounts();
         document.getElementById('loading').style.display = 'none';
 
         document.getElementById('table').style.display = 'table';

@@ -103,12 +103,126 @@ body {
   text-decoration: none;
   transition: all 0.15s ease;
   line-height: 1.2;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .proof-badge:hover {
   background: #4a7c6f;
   color: #ffffff;
   border-color: #4a7c6f;
+}
+
+/* Proof Modal & Image Protection */
+.proof-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.proof-modal.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.proof-modal-content {
+  background: #fff;
+  border-radius: 12px;
+  max-width: 850px;
+  width: 100%;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+.proof-modal-header {
+  padding: 14px 20px;
+  background: #2c2c2c;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #444;
+}
+
+.proof-modal-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.proof-modal-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 6px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.proof-modal-close:hover {
+  opacity: 1;
+}
+
+.proof-modal-body {
+  overflow-y: auto;
+  padding: 16px;
+  background: #f5f0eb;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  -webkit-overflow-scrolling: touch;
+}
+
+.proof-image-container {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.proof-image-container img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  pointer-events: none;
+}
+
+.proof-protection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  background: transparent;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .proof-badge svg {
@@ -223,5 +337,23 @@ body {
   .proof-links {
     margin-left: 0;
     margin-top: 6px;
+  }
+
+  .proof-modal {
+    padding: 8px;
+  }
+
+  .proof-modal-content {
+    max-height: 96vh;
+    border-radius: 8px;
+  }
+
+  .proof-modal-header {
+    padding: 10px 14px;
+  }
+
+  .proof-modal-body {
+    padding: 10px;
+    overflow: auto;
   }
 }
