@@ -39,24 +39,28 @@ function renderPage(data) {
     html += `</div></div>`;
   }
 
-  html += `</div>
+  html += `</div>`;
 
+  if (data.note) {
+    html += `
     <div class="note">
       ${data.note.text}
       <a href="${data.note.phoneLink}">${data.note.phone}</a>.<br><br>
       ${data.note.tagline}
-    </div>
+    </div>`;
+  }
 
-    <div class="divider"></div>`;
-
-  for (const photo of data.photos) {
-    html += `
+  if (data.photos && Array.isArray(data.photos) && data.photos.length > 0) {
+    html += `<div class="divider"></div>`;
+    for (const photo of data.photos) {
+      html += `
     <div class="photo-section">
       <div class="photo-frame">
         <img src="${photo.src}" alt="${photo.alt}">
       </div>
       <div class="caption">${photo.caption}</div>
     </div>`;
+    }
   }
 
   app.innerHTML = html;
@@ -69,6 +73,7 @@ const FIRESTORE_COLLECTION = 'biodata-visits';
 
 function saveVisit(geo, action) {
   const pageValue = action ? `Proof: ${action}` : window.location.href;
+  const currentVariant = window.CURRENT_VARIANT || 'A';
   const visit = {
     fields: {
       timestamp: { stringValue: new Date().toISOString() },
@@ -82,7 +87,8 @@ function saveVisit(geo, action) {
       browser: { stringValue: navigator.userAgent },
       referrer: { stringValue: document.referrer || 'direct' },
       page: { stringValue: pageValue },
-      action: { stringValue: action || 'Page' }
+      action: { stringValue: action || 'Page' },
+      variant: { stringValue: currentVariant }
     }
   };
 

@@ -8,7 +8,38 @@
   </head>
   <body>
     <div class="container" id="app"></div>
-    <script src="data.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script>
+      (function() {
+        const params = new URLSearchParams(window.location.search);
+        let variant = (params.get('v') || 'A').trim().toUpperCase();
+        if (!/^[A-Z0-9_-]+$/.test(variant)) {
+          variant = 'A';
+        }
+        window.CURRENT_VARIANT = variant;
+
+        function loadScript(src, onSuccess, onError) {
+          const s = document.createElement('script');
+          s.src = src;
+          s.onload = onSuccess;
+          s.onerror = onError;
+          document.body.appendChild(s);
+        }
+
+        const variantScriptSrc = `data-${variant.toLowerCase()}.js?v=2`;
+        loadScript(
+          variantScriptSrc,
+          function() {
+            loadScript('app.js?v=2');
+          },
+          function() {
+            console.warn(`Failed to load ${variantScriptSrc}. Falling back to data-a.js.`);
+            window.CURRENT_VARIANT = 'A';
+            loadScript('data-a.js?v=2', function() {
+              loadScript('app.js?v=2');
+            });
+          }
+        );
+      })();
+    </script>
   </body>
 </html>

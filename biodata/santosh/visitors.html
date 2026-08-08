@@ -79,6 +79,11 @@
       line-height: 1.2;
     }
 
+    .badge-variant {
+      background: #ede7f6;
+      color: #5e35b1;
+    }
+
     .badge-main {
       background: #e8f0fe;
       color: #1a73e8;
@@ -229,6 +234,7 @@
         <tr>
           <th>#</th>
           <th>Date &amp; Time</th>
+          <th>Variant</th>
           <th>Viewed</th>
           <th>IP Address</th>
           <th>City</th>
@@ -252,6 +258,12 @@
           <option value="all">All Visits</option>
           <option value="main">Biodata Only</option>
           <option value="proofs">Income Proofs Only</option>
+        </select>
+      </label>
+      <label>
+        Variant
+        <select id="variantFilter">
+          <option value="all">All Variants</option>
         </select>
       </label>
       <label>
@@ -318,6 +330,38 @@
       return f?.stringValue || f?.doubleValue?.toString() || '–';
     }
 
+    function getVariant(doc) {
+      const f = doc.fields?.variant;
+      const v = f?.stringValue;
+      if (v && v.trim() !== '') return v.trim().toUpperCase();
+      return 'A'; // Legacy visits prior to variant tracking default to Variant A
+    }
+
+    function formatVariantBadge(doc) {
+      const v = getVariant(doc);
+      return `<span class="badge badge-variant">Variant ${v}</span>`;
+    }
+
+    function populateVariantFilter() {
+      const select = document.getElementById('variantFilter');
+      if (!select) return;
+      const currentVal = select.value || 'all';
+      const variants = new Set();
+      allDocs.forEach(doc => variants.add(getVariant(doc)));
+
+      const sorted = Array.from(variants).sort();
+      select.innerHTML = '<option value="all">All Variants</option>';
+      sorted.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = `Variant ${v}`;
+        select.appendChild(opt);
+      });
+      if (Array.from(select.options).some(o => o.value === currentVal)) {
+        select.value = currentVal;
+      }
+    }
+
     function getProofLabel(doc) {
       const p = getField(doc, 'page');
       const act = getField(doc, 'action');
@@ -351,12 +395,14 @@
 
     function getFilteredDocs() {
       const filterVal = document.getElementById('pageFilter')?.value || 'all';
-      if (filterVal === 'main') {
-        return allDocs.filter(doc => !isProofDoc(doc));
-      } else if (filterVal === 'proofs') {
-        return allDocs.filter(doc => isProofDoc(doc));
-      }
-      return allDocs;
+      const variantVal = document.getElementById('variantFilter')?.value || 'all';
+
+      return allDocs.filter(doc => {
+        if (filterVal === 'main' && isProofDoc(doc)) return false;
+        if (filterVal === 'proofs' && !isProofDoc(doc)) return false;
+        if (variantVal !== 'all' && getVariant(doc) !== variantVal) return false;
+        return true;
+      });
     }
 
     function updateCounts() {
@@ -364,9 +410,23 @@
       const proofCount = allDocs.filter(isProofDoc).length;
       const mainCount = total - proofCount;
 
+      const variantCounts = {};
+      allDocs.forEach(doc => {
+        const v = getVariant(doc);
+        variantCounts[v] = (variantCounts[v] || 0) + 1;
+      });
+
+      const variantSummary = Object.keys(variantCounts)
+        .sort()
+        .map(v => `Variant ${v}: ${variantCounts[v]}`)
+        .join(' · ');
+
       let text = `${total} visit${total !== 1 ? 's' : ''}`;
+      if (variantSummary) {
+        text += ` (${variantSummary})`;
+      }
       if (proofCount > 0) {
-        text += ` (${mainCount} Biodata · ${proofCount} Income Proof${proofCount !== 1 ? 's' : ''})`;
+        text += ` — ${mainCount} Biodata · ${proofCount} Income Proof${proofCount !== 1 ? 's' : ''}`;
       }
       document.getElementById('count').textContent = text;
     }
@@ -498,6 +558,7 @@
         tr.innerHTML = `
             <td>${rowNum}</td>
             <td>${formatDate(getField(doc, 'timestamp'))}</td>
+            <td>${formatVariantBadge(doc)}</td>
             <td>${formatPageBadge(doc)}</td>
             <td>${getField(doc, 'ip')}</td>
             <td>${getField(doc, 'city')}</td>
@@ -554,6 +615,11 @@
     }
 
     document.getElementById('pageFilter').addEventListener('change', () => {
+      currentPage = 1;
+      renderTablePage();
+    });
+
+    document.getElementById('variantFilter').addEventListener('change', () => {
       currentPage = 1;
       renderTablePage();
     });
@@ -616,6 +682,7 @@
         rapidDuplicateIps = computeRapidDuplicateIps(allDocs);
         repeatedCloudUas = computeRepeatedCloudUas(allDocs);
 
+        populateVariantFilter();
         updateCounts();
         document.getElementById('loading').style.display = 'none';
 
