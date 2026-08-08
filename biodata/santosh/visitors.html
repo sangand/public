@@ -89,6 +89,21 @@
       color: #137333;
     }
 
+    .badge-human {
+      background: #e6f4ea;
+      color: #137333;
+    }
+
+    .badge-bot {
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .badge-unclear {
+      background: #fef7e0;
+      color: #b06000;
+    }
+
     td a {
       color: #4a7c6f;
       text-decoration: none;
@@ -221,7 +236,7 @@
           <th>Country</th>
           <th>Location</th>
           <th>Browser</th>
-          <th>Referrer</th>
+          <th>Visitor</th>
           <th>Org</th>
         </tr>
       </thead>
@@ -267,6 +282,12 @@
   <script>
     const PROJECT = 'finances-388507';
     const COLLECTION = 'biodata-visits';
+
+    const CLOUD_ORGS = [
+      'amazon', 'aws', 'google', 'microsoft', 'azure', 'digitalocean',
+      'ovh', 'hetzner', 'linode', 'oracle', 'alibaba', 'tencent',
+      'contabo', 'vultr', 'scaleway', 'ibm cloud'
+    ];
 
     function parseBrowser(ua) {
       const mobile = /Mobile|Android/i.test(ua) ? ' Mobile' : '';
@@ -350,6 +371,98 @@
       document.getElementById('count').textContent = text;
     }
 
+    let rapidDuplicateIps = new Set();
+
+    function computeRapidDuplicateIps(docs, windowMs = 10000) {
+      const byIp = new Map();
+      docs.forEach(doc => {
+        const ip = getField(doc, 'ip');
+        if (!ip || ip === 'unknown' || ip === '–') return;
+        const ts = new Date(getField(doc, 'timestamp')).getTime();
+        if (Number.isNaN(ts)) return;
+        if (!byIp.has(ip)) byIp.set(ip, []);
+        byIp.get(ip).push(ts);
+      });
+
+      const flagged = new Set();
+      byIp.forEach((timestamps, ip) => {
+        timestamps.sort((a, b) => a - b);
+        for (let i = 1; i < timestamps.length; i++) {
+          if (timestamps[i] - timestamps[i - 1] <= windowMs) {
+            flagged.add(ip);
+            break;
+          }
+        }
+      });
+      return flagged;
+    }
+
+    let repeatedCloudUas = new Set();
+
+    function computeRepeatedCloudUas(docs) {
+      const uaToIps = new Map();
+      docs.forEach(doc => {
+        const org = getField(doc, 'org').toLowerCase();
+        const ua = getField(doc, 'browser');
+        const ip = getField(doc, 'ip');
+        if (!ua || ua === '–') return;
+        if (!CLOUD_ORGS.some(k => org.includes(k))) return;
+        if (!uaToIps.has(ua)) uaToIps.set(ua, new Set());
+        uaToIps.get(ua).add(ip);
+      });
+
+      const repeated = new Set();
+      uaToIps.forEach((ips, ua) => {
+        if (ips.size > 1) repeated.add(ua);
+      });
+      return repeated;
+    }
+
+    function classifyVisitor(doc) {
+      const ua = getField(doc, 'browser').toLowerCase();
+      const org = getField(doc, 'org').toLowerCase();
+      const ip = getField(doc, 'ip');
+
+      const botUaHints = [
+        'bot', 'crawl', 'spider', 'slurp', 'facebookexternalhit', 'whatsapp',
+        'telegrambot', 'slackbot', 'discordbot', 'curl', 'wget',
+        'python-requests', 'headless', 'lighthouse', 'pingdom', 'uptimerobot', 'preview'
+      ];
+      // Desktop Chrome/Chromium (incl. Edge, Opera) silently auto-updates within days, so a build
+      // this many majors behind is almost certainly a stale hardcoded scraper UA. Mobile OEM
+      // browsers (MIUI, ColorOS/HeyTap, Vivo, Samsung...) bundle their own slow-updating Chromium
+      // WebView, so a years-old Chrome major there is normal and must NOT be flagged.
+      // Bump this floor upward every so often as real desktop Chrome versions climb.
+      const MIN_PLAUSIBLE_CHROME_MAJOR = 120;
+      const mobileOrOemHints = [
+        'android', 'iphone', 'ipad', 'mobile',
+        'miuibrowser', 'heytapbrowser', 'vivobrowser', 'samsungbrowser',
+        'ucbrowser', 'opera mini', 'coloros'
+      ];
+
+      if (botUaHints.some(k => ua.includes(k))) return 'bot';
+      const chromeMatch = ua.match(/chrome\/(\d+)/);
+      const looksLikePlainDesktop = !mobileOrOemHints.some(k => ua.includes(k));
+      if (looksLikePlainDesktop && chromeMatch && Number(chromeMatch[1]) < MIN_PLAUSIBLE_CHROME_MAJOR) return 'bot';
+
+      // Same-IP signals below only mean anything on a single-tenant cloud/hosting IP.
+      // Mobile carrier IPs (Airtel, Jio, ...) are heavily CGNAT'd, so many unrelated
+      // real subscribers can share one public IP at the same moment.
+      if (CLOUD_ORGS.some(k => org.includes(k))) {
+        if (rapidDuplicateIps.has(ip)) return 'bot';
+        if (repeatedCloudUas.has(getField(doc, 'browser'))) return 'bot';
+        return 'unclear';
+      }
+      return 'human';
+    }
+
+    function formatVisitorBadge(doc) {
+      const verdict = classifyVisitor(doc);
+      if (verdict === 'bot') return '<span class="badge badge-bot">Bot</span>';
+      if (verdict === 'unclear') return '<span class="badge badge-unclear">Unclear</span>';
+      return '<span class="badge badge-human">Human</span>';
+    }
+
     function mapsLink(doc) {
       const lat = doc.fields?.latitude?.doubleValue;
       const lng = doc.fields?.longitude?.doubleValue;
@@ -392,7 +505,7 @@
             <td>${getField(doc, 'country')}</td>
             <td>${mapsLink(doc)}</td>
             <td class="browser" title="${getField(doc, 'browser')}">${parseBrowser(getField(doc, 'browser'))}</td>
-            <td>${getField(doc, 'referrer')}</td>
+            <td>${formatVisitorBadge(doc)}</td>
             <td>${getField(doc, 'org')}</td>`;
         tbody.appendChild(tr);
       });
@@ -499,6 +612,9 @@
           const tb = getField(b, 'timestamp');
           return tb.localeCompare(ta);
         });
+
+        rapidDuplicateIps = computeRapidDuplicateIps(allDocs);
+        repeatedCloudUas = computeRepeatedCloudUas(allDocs);
 
         updateCounts();
         document.getElementById('loading').style.display = 'none';

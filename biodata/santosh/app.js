@@ -100,11 +100,26 @@ function saveVisit(geo, action) {
 function fetchGeo() {
   return fetch('https://ipapi.co/json/')
     .then(res => res.json())
-    .then(g => ({ ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude }))
+    .then(g => {
+      if (g.error) throw new Error(g.reason || 'ipapi error');
+      return { ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude };
+    })
     .catch(() =>
       fetch('https://reallyfreegeoip.org/json/')
         .then(res => res.json())
-        .then(g => ({ ip: g.ip, city: g.city, region: g.region_name, country: g.country_name, org: 'unknown', lat: g.latitude, lon: g.longitude }))
+        .then(g => {
+          if (!g.ip) throw new Error('reallyfreegeoip error');
+          return { ip: g.ip, city: g.city, region: g.region_name, country: g.country_name, org: 'unknown', lat: g.latitude, lon: g.longitude };
+        })
+    )
+    .catch(() =>
+      fetch('https://ipinfo.io/json')
+        .then(res => res.json())
+        .then(g => {
+          if (!g.ip) throw new Error('ipinfo error');
+          const [lat, lon] = (g.loc || '').split(',').map(Number);
+          return { ip: g.ip, city: g.city, region: g.region, country: g.country, org: g.org, lat: lat || 0, lon: lon || 0 };
+        })
     )
     .catch(() => ({ ip: 'unknown', city: 'unknown', region: 'unknown', country: 'unknown', org: 'unknown', lat: 0, lon: 0 }));
 }
