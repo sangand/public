@@ -373,11 +373,12 @@
         label = act;
       } else if (p && (p.toLowerCase().includes('proof') || p.endsWith('.pdf'))) {
         if (p.includes('JUN_2026') || p.toLowerCase().includes('payslip')) label = 'Payslip';
-        else if (p.includes('ACK') || p.toLowerCase().includes('itr')) label = 'ITR Ack';
+        else if (p.includes('ACK') || p.toLowerCase().includes('itr')) label = 'IT returns';
         else label = 'Income Proof';
       }
 
       if (label === 'Jun 2026 Payslip') return 'Payslip';
+      if (label === 'ITR Ack' || label === 'Income Tax returns') return 'IT returns';
       return label;
     }
 

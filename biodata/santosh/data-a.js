@@ -18,7 +18,7 @@ const DATA = {
       "value": "~3 crores / year",
       "highlight": true,
       "proofs": [
-        { "label": "ITR Ack", "image": "images/proof_itr-1.png" },
+        { "label": "IT returns", "image": "images/proof_itr-1.png" },
         { "label": "Jun 2026 Payslip", "logLabel": "Payslip", "image": "images/proof_payslip-1.png" }
       ]
     },
