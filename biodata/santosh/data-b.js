@@ -25,7 +25,7 @@ const DATA = {
     },
     { "label": "Caste", "value": "Velama" },
     { "label": "Native Address", "value": "Naidu colony, Bobbili, Vizianagaram" },
-    { "label": "Contact", "value": ["9010902082", "9963495916"] },
+    { "label": "Contact", "value": ["9502541545", "9963495916"] },
   ],
   "photos": [
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image1.jpg",  "alt": "Hyderabad, May 2026" },

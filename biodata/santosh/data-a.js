@@ -36,7 +36,7 @@ const DATA = {
     { "label": "Current Address", "value": "Gachibowli, Hyderabad" },
     { "label": "Native Address", "value": "Naidu colony, Bobbili, Vizianagaram" },
     { "label": "Requirements", "value": "Just one - If I like the girl after talking to her in person, I'll proceed.", "highlight": true },
-    { "label": "Contact", "value": ["9010902082", "9963495916"] },
+    { "label": "Contact", "value": ["9502541545", "9963495916"] },
   ],
   "note": {
     "tagline": "I've plenty of knowledge about life and marriage, not just software.",
