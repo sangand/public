@@ -306,9 +306,16 @@
       let name, ver;
 
       if ((ver = ua.match(/WhatsApp\/(\d+)/i))) return `WhatsApp/${ver[1]}`;
-      else if ((ver = ua.match(/MiuiBrowser\/(\d+)/i))) name = 'MiuiBrowser';
+      else if ((ver = ua.match(/MiuiBrowser\/(\d+)/i))) name = 'Miui';
+      else if ((ver = ua.match(/HeyTapBrowser\/(\d+)/i))) name = 'HeyTap';
+      else if ((ver = ua.match(/VivoBrowser\/(\d+)/i))) name = 'Vivo';
+      else if ((ver = ua.match(/SamsungBrowser\/(\d+)/i))) name = 'Samsung';
+      else if ((ver = ua.match(/UCBrowser\/(\d+)/i))) name = 'UC';
+      else if ((ver = ua.match(/Opera Mini\/(\d+)/i)) || (ver = ua.match(/OPiOS\/(\d+)/i))) name = 'Opera Mini';
       else if ((ver = ua.match(/Edg(?:A|iOS)?\/(\d+)/))) name = 'Edge';
       else if ((ver = ua.match(/OPR\/(\d+)/))) name = 'Opera';
+      else if ((ver = ua.match(/FxiOS\/(\d+)/i))) name = 'Firefox';
+      else if ((ver = ua.match(/CriOS\/(\d+)/i))) name = 'Chrome';
       else if ((ver = ua.match(/Chrome\/(\d+)/))) name = 'Chrome';
       else if ((ver = ua.match(/Firefox\/(\d+)/))) name = 'Firefox';
       else if ((ver = ua.match(/Version\/(\d+).*Safari/))) name = 'Safari';
@@ -430,6 +437,22 @@
         text += ` — ${mainCount} Biodata · ${proofCount} Income Proof${proofCount !== 1 ? 's' : ''}`;
       }
       document.getElementById('count').textContent = text;
+    }
+
+    function dedupeRapidVisits(docs, windowMs = 5000) {
+      const lastSeen = new Map();
+      return docs.filter(doc => {
+        const ip = getField(doc, 'ip');
+        const ts = new Date(getField(doc, 'timestamp')).getTime();
+        if (!ip || ip === 'unknown' || ip === '–' || Number.isNaN(ts)) return true;
+
+        const key = [ip, getField(doc, 'browser'), getField(doc, 'page'), getField(doc, 'action')].join('|');
+        const prevTs = lastSeen.get(key);
+        if (prevTs !== undefined && Math.abs(prevTs - ts) <= windowMs) return false;
+
+        lastSeen.set(key, ts);
+        return true;
+      });
     }
 
     let rapidDuplicateIps = new Set();
@@ -679,6 +702,8 @@
           const tb = getField(b, 'timestamp');
           return tb.localeCompare(ta);
         });
+
+        allDocs = dedupeRapidVisits(allDocs);
 
         rapidDuplicateIps = computeRapidDuplicateIps(allDocs);
         repeatedCloudUas = computeRepeatedCloudUas(allDocs);
