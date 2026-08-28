@@ -71,19 +71,19 @@ renderPage(DATA);
 const FIRESTORE_PROJECT = 'finances-388507';
 const FIRESTORE_COLLECTION = 'biodata-visits';
 
-function saveVisit(geo, action) {
+function createVisit(action) {
   const pageValue = action ? `Proof: ${action}` : window.location.href;
   const currentVariant = window.CURRENT_VARIANT || 'A';
   const visit = {
     fields: {
       timestamp: { stringValue: new Date().toISOString() },
-      ip: { stringValue: geo.ip || 'unknown' },
-      city: { stringValue: geo.city || 'unknown' },
-      region: { stringValue: geo.region || 'unknown' },
-      country: { stringValue: geo.country || 'unknown' },
-      org: { stringValue: geo.org || 'unknown' },
-      latitude: { doubleValue: geo.lat || 0 },
-      longitude: { doubleValue: geo.lon || 0 },
+      ip: { stringValue: 'unknown' },
+      city: { stringValue: 'unknown' },
+      region: { stringValue: 'unknown' },
+      country: { stringValue: 'unknown' },
+      org: { stringValue: 'unknown' },
+      latitude: { doubleValue: 0 },
+      longitude: { doubleValue: 0 },
       browser: { stringValue: navigator.userAgent },
       referrer: { stringValue: document.referrer || 'direct' },
       page: { stringValue: pageValue },
@@ -92,6 +92,9 @@ function saveVisit(geo, action) {
     }
   };
 
+  // Written eagerly (before geo lookups) with keepalive so a visit that closes
+  // the tab within a second or two still gets recorded; geo fields are patched
+  // in afterward once fetchGeo()/fetchIpv4() resolve.
   return fetch(
     `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
     {
@@ -100,18 +103,44 @@ function saveVisit(geo, action) {
       body: JSON.stringify(visit),
       keepalive: true
     }
+  ).then(res => res.json());
+}
+
+function patchVisitGeo(docName, geo) {
+  const fields = {
+    ip: { stringValue: geo.ip || 'unknown' },
+    city: { stringValue: geo.city || 'unknown' },
+    region: { stringValue: geo.region || 'unknown' },
+    country: { stringValue: geo.country || 'unknown' },
+    org: { stringValue: geo.org || 'unknown' },
+    latitude: { doubleValue: geo.lat || 0 },
+    longitude: { doubleValue: geo.lon || 0 }
+  };
+
+  const updateMask = Object.keys(fields)
+    .map(f => `updateMask.fieldPaths=${f}`)
+    .join('&');
+
+  return fetch(
+    `https://firestore.googleapis.com/v1/${docName}?${updateMask}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields }),
+      keepalive: true
+    }
   );
 }
 
 function fetchGeo() {
-  return fetch('https://ipapi.co/json/')
+  return fetch('https://ipapi.co/json/', { keepalive: true })
     .then(res => res.json())
     .then(g => {
       if (g.error) throw new Error(g.reason || 'ipapi error');
       return { ip: g.ip, city: g.city, region: g.region, country: g.country_name, org: g.org, lat: g.latitude, lon: g.longitude };
     })
     .catch(() =>
-      fetch('https://reallyfreegeoip.org/json/')
+      fetch('https://reallyfreegeoip.org/json/', { keepalive: true })
         .then(res => res.json())
         .then(g => {
           if (!g.ip) throw new Error('reallyfreegeoip error');
@@ -119,7 +148,7 @@ function fetchGeo() {
         })
     )
     .catch(() =>
-      fetch('https://ipinfo.io/json')
+      fetch('https://ipinfo.io/json', { keepalive: true })
         .then(res => res.json())
         .then(g => {
           if (!g.ip) throw new Error('ipinfo error');
@@ -131,7 +160,7 @@ function fetchGeo() {
 }
 
 function fetchIpv4() {
-  return fetch('https://api.ipify.org?format=json')
+  return fetch('https://api.ipify.org?format=json', { keepalive: true })
     .then(res => res.json())
     .then(d => d.ip || null)
     .catch(() => null);
@@ -155,7 +184,12 @@ function getGeo() {
 }
 
 function logVisit(action) {
-  getGeo().then(geo => saveVisit(geo, action)).catch(() => {});
+  createVisit(action)
+    .then(doc => {
+      if (!doc || !doc.name) return;
+      getGeo().then(geo => patchVisitGeo(doc.name, geo)).catch(() => {});
+    })
+    .catch(() => {});
 }
 
 logVisit();
