@@ -74,66 +74,8 @@ renderPage(DATA);
 const FIRESTORE_PROJECT = 'finances-388507';
 const FIRESTORE_COLLECTION = 'biodata-visits';
 
-function createVisit(action) {
-  const pageValue = action ? `Proof: ${action}` : window.location.href;
-  const currentVariant = window.CURRENT_VARIANT || 'A';
-  const visit = {
-    fields: {
-      timestamp: { stringValue: new Date().toISOString() },
-      ip: { stringValue: 'unknown' },
-      city: { stringValue: 'unknown' },
-      region: { stringValue: 'unknown' },
-      country: { stringValue: 'unknown' },
-      org: { stringValue: 'unknown' },
-      latitude: { doubleValue: 0 },
-      longitude: { doubleValue: 0 },
-      browser: { stringValue: navigator.userAgent },
-      referrer: { stringValue: document.referrer || 'direct' },
-      page: { stringValue: pageValue },
-      action: { stringValue: action || 'Page' },
-      variant: { stringValue: currentVariant }
-    }
-  };
-
-  // Written eagerly (before geo lookups) with keepalive so a visit that closes
-  // the tab within a second or two still gets recorded; geo fields are patched
-  // in afterward once fetchGeo()/fetchIpv4() resolve.
-  return fetch(
-    `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(visit),
-      keepalive: true
-    }
-  ).then(res => res.json());
-}
-
-function patchVisitGeo(docName, geo) {
-  const fields = {
-    ip: { stringValue: geo.ip || 'unknown' },
-    city: { stringValue: geo.city || 'unknown' },
-    region: { stringValue: geo.region || 'unknown' },
-    country: { stringValue: geo.country || 'unknown' },
-    org: { stringValue: geo.org || 'unknown' },
-    latitude: { doubleValue: geo.lat || 0 },
-    longitude: { doubleValue: geo.lon || 0 }
-  };
-
-  const updateMask = Object.keys(fields)
-    .map(f => `updateMask.fieldPaths=${f}`)
-    .join('&');
-
-  return fetch(
-    `https://firestore.googleapis.com/v1/${docName}?${updateMask}`,
-    {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ fields }),
-      keepalive: true
-    }
-  );
-}
+let cachedGeo = null;
+let geoPromise = null;
 
 function fetchGeo() {
   return fetch('https://ipapi.co/json/', { keepalive: true })
@@ -177,24 +119,93 @@ function preferIpv4(geo, ipv4) {
   return geo;
 }
 
-let geoPromise = null;
-
 function getGeo() {
   if (!geoPromise) {
-    geoPromise = Promise.all([fetchGeo(), fetchIpv4()]).then(([geo, ipv4]) => preferIpv4(geo, ipv4));
+    geoPromise = Promise.all([fetchGeo(), fetchIpv4()])
+      .then(([geo, ipv4]) => preferIpv4(geo, ipv4))
+      .then(geo => {
+        cachedGeo = geo;
+        return geo;
+      });
   }
   return geoPromise;
 }
 
-function logVisit(action) {
-  createVisit(action)
-    .then(doc => {
-      if (!doc || !doc.name) return;
-      getGeo().then(geo => patchVisitGeo(doc.name, geo)).catch(() => {});
-    })
-    .catch(() => {});
+function createVisit(action, geo) {
+  const pageValue = action ? `Proof: ${action}` : window.location.href;
+  const currentVariant = window.CURRENT_VARIANT || 'A';
+  const visit = {
+    fields: {
+      timestamp: { stringValue: new Date().toISOString() },
+      ip: { stringValue: geo?.ip || 'unknown' },
+      city: { stringValue: geo?.city || 'unknown' },
+      region: { stringValue: geo?.region || 'unknown' },
+      country: { stringValue: geo?.country || 'unknown' },
+      org: { stringValue: geo?.org || 'unknown' },
+      latitude: { doubleValue: typeof geo?.lat === 'number' ? geo.lat : (Number(geo?.lat) || 0) },
+      longitude: { doubleValue: typeof geo?.lon === 'number' ? geo.lon : (Number(geo?.lon) || 0) },
+      browser: { stringValue: navigator.userAgent },
+      referrer: { stringValue: document.referrer || 'direct' },
+      page: { stringValue: pageValue },
+      action: { stringValue: action || 'Page' },
+      variant: { stringValue: currentVariant }
+    }
+  };
+
+  // Written eagerly with keepalive so a visit or proof click that closes
+  // the tab within a second or two still gets recorded.
+  return fetch(
+    `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT}/databases/(default)/documents/${FIRESTORE_COLLECTION}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(visit),
+      keepalive: true
+    }
+  ).then(res => res.json());
 }
 
+function patchVisitGeo(docName, geo) {
+  if (!geo || !docName) return;
+  const fields = {
+    ip: { stringValue: geo.ip || 'unknown' },
+    city: { stringValue: geo.city || 'unknown' },
+    region: { stringValue: geo.region || 'unknown' },
+    country: { stringValue: geo.country || 'unknown' },
+    org: { stringValue: geo.org || 'unknown' },
+    latitude: { doubleValue: typeof geo.lat === 'number' ? geo.lat : (Number(geo.lat) || 0) },
+    longitude: { doubleValue: typeof geo.lon === 'number' ? geo.lon : (Number(geo.lon) || 0) }
+  };
+
+  const updateMask = Object.keys(fields)
+    .map(f => `updateMask.fieldPaths=${f}`)
+    .join('&');
+
+  return fetch(
+    `https://firestore.googleapis.com/v1/${docName}?${updateMask}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields }),
+      keepalive: true
+    }
+  );
+}
+
+function logVisit(action) {
+  if (cachedGeo) {
+    createVisit(action, cachedGeo).catch(() => {});
+  } else {
+    createVisit(action, null)
+      .then(doc => {
+        if (!doc || !doc.name) return;
+        getGeo().then(geo => patchVisitGeo(doc.name, geo)).catch(() => {});
+      })
+      .catch(() => {});
+  }
+}
+
+getGeo();
 logVisit();
 
 function createProofModal() {

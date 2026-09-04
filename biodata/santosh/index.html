@@ -25,17 +25,17 @@
           document.body.appendChild(s);
         }
 
-        const variantScriptSrc = `data-${variant.toLowerCase()}.js?v=3`;
+        const variantScriptSrc = `data-${variant.toLowerCase()}.js?v=4`;
         loadScript(
           variantScriptSrc,
           function() {
-            loadScript('app.js?v=3');
+            loadScript('app.js?v=4');
           },
           function() {
             console.warn(`Failed to load ${variantScriptSrc}. Falling back to data-a.js.`);
             window.CURRENT_VARIANT = 'A';
-            loadScript('data-a.js?v=3', function() {
-              loadScript('app.js?v=3');
+            loadScript('data-a.js?v=4', function() {
+              loadScript('app.js?v=4');
             });
           }
         );

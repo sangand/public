@@ -692,10 +692,26 @@
       }
     });
 
-    fetch(`https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/${COLLECTION}?pageSize=1000`)
-      .then(res => res.json())
-      .then(data => {
-        allDocs = data.documents || [];
+    async function fetchAllDocs() {
+      let docs = [];
+      let pageToken = null;
+      do {
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/${COLLECTION}?pageSize=300` +
+          (pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '');
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        if (data.documents && data.documents.length) {
+          docs = docs.concat(data.documents);
+        }
+        pageToken = data.nextPageToken;
+      } while (pageToken);
+      return docs;
+    }
+
+    fetchAllDocs()
+      .then(docs => {
+        allDocs = docs || [];
 
         allDocs.sort((a, b) => {
           const ta = getField(a, 'timestamp');
