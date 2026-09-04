@@ -13,7 +13,7 @@ const DATA = {
     { "label": "Horoscope", "value": "Dhanishta-3, Kumbha rāsi" },
     { "label": "Education", "value": "B.Tech.(CSE), Andhra university college of engineering" },
     { "label": "Profession", "value": ["R&D Staff Software Engineer", "Broadcom", "Financial district, Hyderabad"] },
-    { "label": "Income", "value": "~3 crores / year" },
+    { "label": "Income", "value": "~3 crores / year", "subtext": "(Cash + RSU)" },
     {
       "label": "Family",
       "value": [

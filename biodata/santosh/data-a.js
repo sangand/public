@@ -3,7 +3,7 @@ const DATA = {
   "subtitle": "Biodata",
   "profilePhoto": {
     "caption": "3-May-2026 · Hyderabad",
-    "src": "images/image0.jpg",
+    "src": "images/image1.jpg",
     "alt": "Santosh Kumar"
   },
   "info": [
@@ -16,6 +16,7 @@ const DATA = {
     {
       "label": "Income",
       "value": "~3 crores / year",
+      "subtext": "(Cash + RSU)",
       "highlight": true,
       "proofs": [
         { "label": "IT returns", "image": "images/proof_itr-1.png" },
@@ -45,19 +46,19 @@ const DATA = {
     "phoneLink": "tel:+919963495916"
   },
   "photos": [
-    { "caption": "3-May-2026 · Hyderabad", "src": "images/image1.jpg",  "alt": "Hyderabad, May 2026" },
+    { "caption": "3-May-2026 · Hyderabad", "src": "images/image7.jpg",  "alt": "Hyderabad, May 2026" },
+    { "caption": "3-May-2026 · Hyderabad", "src": "images/image8.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image2.jpg",  "alt": "Hyderabad, May 2026" },
+    { "caption": "8-Apr-2025 · Kanya Kumari", "src": "images/image32.jpg", "alt": "Kanya Kumari, Apr 2025" },
+    { "caption": "9-Apr-2025 · Kovalam, Kerala", "src": "images/image33.jpg", "alt": "Kovalam, Kerala, Apr 2025" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image3.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image4.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image5.jpg",  "alt": "Hyderabad, May 2026" },
+    { "caption": "3-May-2026 · Hyderabad", "src": "images/image0.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image6.jpg",  "alt": "Hyderabad, May 2026" },
-    { "caption": "3-May-2026 · Hyderabad", "src": "images/image7.jpg",  "alt": "Hyderabad, May 2026" },
-    { "caption": "3-May-2026 · Hyderabad", "src": "images/image8.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image9.jpg",  "alt": "Hyderabad, May 2026" },
     { "caption": "3-May-2026 · Hyderabad", "src": "images/image10.jpg", "alt": "Hyderabad, May 2026" },
     { "caption": "8-Apr-2025 · Kanya Kumari", "src": "images/image31.jpg", "alt": "Kanya Kumari, Apr 2025" },
-    { "caption": "8-Apr-2025 · Kanya Kumari", "src": "images/image32.jpg", "alt": "Kanya Kumari, Apr 2025" },
-    { "caption": "9-Apr-2025 · Kovalam, Kerala", "src": "images/image33.jpg", "alt": "Kovalam, Kerala, Apr 2025" },
     { "caption": "15-May-2025 · Vijayawada", "src": "images/image34.jpg", "alt": "Vijayawada, May 2025" },
     { "caption": "15-May-2025 · Vijayawada", "src": "images/image35.jpg", "alt": "Vijayawada, May 2025" },
     // { "caption": "5-Jan-2025 · Nagarjuna Sagar", "src": "images/image36.jpg", "alt": "Nagarjuna Sagar, Jan 2025" }

@@ -28,6 +28,9 @@ function renderPage(data) {
         .join('');
     } else {
       html += item.highlight ? `<span class="highlight">${item.value}</span>` : item.value;
+      if (item.subtext) {
+        html += ` <span class="info-subtext">${item.subtext}</span>`;
+      }
     }
 
     if (item.proofs && Array.isArray(item.proofs)) {

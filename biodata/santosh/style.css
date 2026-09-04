@@ -81,12 +81,20 @@ body {
   display: inline-block;
 }
 
+.info-subtext {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+  margin-left: 4px;
+  display: inline-block;
+}
+
 .proof-links {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 6px;
   margin-top: 6px;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .proof-badge {
