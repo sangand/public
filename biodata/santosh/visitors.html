@@ -94,6 +94,11 @@
       color: #137333;
     }
 
+    .badge-popover {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
     .badge-human {
       background: #e6f4ea;
       color: #137333;
@@ -257,7 +262,7 @@
         <select id="pageFilter">
           <option value="all">All Visits</option>
           <option value="main">Biodata Only</option>
-          <option value="proofs">Income Proofs Only</option>
+          <option value="proofs">Details / Proofs Only</option>
         </select>
       </label>
       <label>
@@ -386,6 +391,7 @@
 
       if (label === 'Jun 2026 Payslip') return 'Payslip';
       if (label === 'ITR Ack' || label === 'Income Tax returns') return 'IT returns';
+      if (label === 'Networth Details' || label === 'Net Worth' || label === 'Networth') return 'Networth';
       return label;
     }
 
@@ -396,7 +402,8 @@
     function formatPageBadge(doc) {
       const label = getProofLabel(doc);
       if (label) {
-        return `<span class="badge badge-proof">${label}</span>`;
+        const isPopover = label.includes('Networth');
+        return `<span class="badge ${isPopover ? 'badge-popover' : 'badge-proof'}">${label}</span>`;
       }
       return '<span class="badge badge-main">Biodata</span>';
     }
@@ -434,7 +441,7 @@
         text += ` (${variantSummary})`;
       }
       if (proofCount > 0) {
-        text += ` — ${mainCount} Biodata · ${proofCount} Income Proof${proofCount !== 1 ? 's' : ''}`;
+        text += ` — ${mainCount} Biodata · ${proofCount} Details / Proof${proofCount !== 1 ? 's' : ''}`;
       }
       document.getElementById('count').textContent = text;
     }

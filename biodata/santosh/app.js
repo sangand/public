@@ -27,10 +27,15 @@ function renderPage(data) {
         .map(v => `<div class="family-item">${v}</div>`)
         .join('');
     } else {
+      html += `<span class="info-value-wrap">`;
       html += item.highlight ? `<span class="highlight">${item.value}</span>` : item.value;
       if (item.subtext) {
         html += ` <span class="info-subtext">${item.subtext}</span>`;
       }
+      if (item.breakdown) {
+        html += ` <button type="button" class="info-popover-btn" id="networthInfoBtn" aria-label="View Net Worth details" title="View details" aria-haspopup="dialog" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button>`;
+      }
+      html += `</span>`;
     }
 
     if (item.proofs && Array.isArray(item.proofs)) {
@@ -208,6 +213,74 @@ function logVisit(action) {
 getGeo();
 logVisit();
 
+// --- Modal Scroll Management ---
+let scrollLockCount = 0;
+let savedScrollY = 0;
+
+function lockBodyScroll() {
+  if (scrollLockCount === 0) {
+    savedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.documentElement.classList.add('modal-open');
+    document.body.classList.add('modal-open');
+  }
+  scrollLockCount++;
+}
+
+function unlockBodyScroll() {
+  scrollLockCount = Math.max(0, scrollLockCount - 1);
+  if (scrollLockCount === 0) {
+    document.documentElement.classList.remove('modal-open');
+    document.body.classList.remove('modal-open');
+  }
+}
+
+function attachModalScrollContainment(modalElement, scrollSelector) {
+  let touchStartY = 0;
+
+  modalElement.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length === 1) {
+      touchStartY = e.touches[0].clientY;
+    }
+  }, { passive: true });
+
+  modalElement.addEventListener('touchmove', (e) => {
+    const scrollable = modalElement.querySelector(scrollSelector);
+    if (!scrollable || !scrollable.contains(e.target)) {
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+
+    if (e.touches && e.touches.length === 1) {
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchY - touchStartY;
+      touchStartY = touchY;
+
+      const isAtTop = scrollable.scrollTop <= 0;
+      const isAtBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+
+      if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+  }, { passive: false });
+
+  modalElement.addEventListener('wheel', (e) => {
+    const scrollable = modalElement.querySelector(scrollSelector);
+    if (!scrollable || !scrollable.contains(e.target)) {
+      if (e.cancelable) e.preventDefault();
+      return;
+    }
+
+    const deltaY = e.deltaY;
+    const isAtTop = scrollable.scrollTop <= 0;
+    const isAtBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+
+    if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+      if (e.cancelable) e.preventDefault();
+    }
+  }, { passive: false });
+}
+
 function createProofModal() {
   if (document.getElementById('proofModal')) return;
 
@@ -232,9 +305,13 @@ function createProofModal() {
   const modal = document.getElementById('proofModal');
   const closeBtn = document.getElementById('proofModalClose');
 
+  attachModalScrollContainment(modal, '.proof-modal-body');
+
   function closeModal() {
+    if (!modal.classList.contains('open')) return;
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
+    unlockBodyScroll();
   }
 
   closeBtn.addEventListener('click', closeModal);
@@ -261,8 +338,11 @@ function openProofModal(displayTitle, logLabel, imageSrc) {
   title.textContent = displayTitle;
   img.src = imageSrc;
 
-  modal.classList.add('open');
-  modal.setAttribute('aria-hidden', 'false');
+  if (!modal.classList.contains('open')) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+  }
 
   logVisit(logLabel);
 }
@@ -282,7 +362,7 @@ document.addEventListener('click', (e) => {
 
 // Prevent right-click on modal and images
 document.addEventListener('contextmenu', (e) => {
-  if (e.target.closest('#proofModal') || e.target.tagName === 'IMG') {
+  if (e.target.closest('#proofModal') || e.target.closest('#networthModal') || e.target.tagName === 'IMG') {
     e.preventDefault();
     return false;
   }
@@ -290,7 +370,7 @@ document.addEventListener('contextmenu', (e) => {
 
 // Prevent dragging images
 document.addEventListener('dragstart', (e) => {
-  if (e.target.tagName === 'IMG' || e.target.closest('#proofModal')) {
+  if (e.target.tagName === 'IMG' || e.target.closest('#proofModal') || e.target.closest('#networthModal')) {
     e.preventDefault();
     return false;
   }
@@ -298,11 +378,166 @@ document.addEventListener('dragstart', (e) => {
 
 // Disable print / save keyboard shortcuts when modal is open
 document.addEventListener('keydown', (e) => {
-  const modal = document.getElementById('proofModal');
-  if (modal && modal.classList.contains('open')) {
+  const proofModal = document.getElementById('proofModal');
+  const nwModal = document.getElementById('networthModal');
+  const isProofOpen = proofModal && proofModal.classList.contains('open');
+  const isNwOpen = nwModal && nwModal.classList.contains('open');
+
+  if (isProofOpen || isNwOpen) {
     if ((e.ctrlKey || e.metaKey) && ['s', 'p', 'u'].includes(e.key.toLowerCase())) {
       e.preventDefault();
       return false;
     }
   }
 });
+
+function createNetworthPopover(breakdown) {
+  let existing = document.getElementById('networthModal');
+  if (existing) {
+    if (existing.classList.contains('open')) {
+      unlockBodyScroll();
+    }
+    existing.remove();
+  }
+
+  const assetsRowsHtml = breakdown.assets.map(a => `
+    <tr>
+      <td class="nw-name">${a.name}</td>
+      <td class="nw-val">${a.amount}</td>
+    </tr>
+  `).join('');
+
+  const faqsHtml = breakdown.faqs && breakdown.faqs.length ? `
+    <div class="nw-faqs-section">
+      <div class="nw-section-title">FAQs</div>
+      <div class="nw-faqs-list">
+        ${breakdown.faqs.map(faq => `
+          <div class="nw-faq-item">
+            <div class="nw-faq-q"><span class="nw-faq-q-tag">Q:</span> ${faq.q}</div>
+            <div class="nw-faq-a"><span class="nw-faq-a-tag">A:</span> ${faq.a}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  let noteHtml = '';
+  const notesList = breakdown.notes || (Array.isArray(breakdown.note) ? breakdown.note : (breakdown.note ? [breakdown.note] : []));
+  if (notesList.length === 1 && !notesList[0].match(/^\d+\./)) {
+    noteHtml = `
+      <div class="nw-note-box">
+        <strong>Note:</strong> ${notesList[0]}
+      </div>
+    `;
+  } else if (notesList.length > 0) {
+    noteHtml = `
+      <div class="nw-note-box">
+        <div class="nw-note-title">Note:</div>
+        ${notesList.map(n => `<div class="nw-note-item">${n}</div>`).join('')}
+      </div>
+    `;
+  }
+
+  const modalHtml = `
+    <div id="networthModal" class="nw-modal" aria-hidden="true" role="dialog" aria-labelledby="networthModalTitle">
+      <div class="nw-modal-overlay"></div>
+      <div class="nw-modal-content">
+        <div class="nw-modal-header">
+          <div class="nw-modal-header-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span id="networthModalTitle">${breakdown.title || 'Net Worth Details'}</span>
+          </div>
+          <button type="button" class="nw-modal-close" id="networthModalClose" aria-label="Close dialog">&times;</button>
+        </div>
+        <div class="nw-modal-body">
+          <div class="nw-table-wrap">
+            <table class="nw-table">
+              <thead>
+                <tr>
+                  <th>Assets</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${assetsRowsHtml}
+              </tbody>
+              <tfoot>
+                <tr class="nw-total-row">
+                  <td>Total Assets</td>
+                  <td>${breakdown.totalAssets}</td>
+                </tr>
+                <tr class="nw-liabilities-row">
+                  <td>Liabilities</td>
+                  <td>${breakdown.liabilities}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          ${noteHtml}
+          ${faqsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+  const modal = document.getElementById('networthModal');
+  const overlay = modal.querySelector('.nw-modal-overlay');
+  const closeBtn = document.getElementById('networthModalClose');
+
+  attachModalScrollContainment(modal, '.nw-modal-body');
+
+  function closeNetworth() {
+    if (!modal.classList.contains('open')) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    unlockBodyScroll();
+    const trigger = document.getElementById('networthInfoBtn');
+    if (trigger) {
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.focus();
+    }
+  }
+
+  closeBtn.addEventListener('click', closeNetworth);
+  overlay.addEventListener('click', closeNetworth);
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeNetworth();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      closeNetworth();
+    }
+  });
+}
+
+function openNetworthPopover(breakdown) {
+  createNetworthPopover(breakdown);
+  const modal = document.getElementById('networthModal');
+  if (!modal.classList.contains('open')) {
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    lockBodyScroll();
+  }
+  const trigger = document.getElementById('networthInfoBtn');
+  if (trigger) trigger.setAttribute('aria-expanded', 'true');
+  logVisit('Networth');
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('#networthInfoBtn');
+  if (!btn) return;
+
+  const currentData = (typeof DATA !== 'undefined' ? DATA : (window.DATA || null));
+  const nwItem = (currentData && currentData.info ? currentData.info : []).find(it => it.breakdown);
+  if (nwItem && nwItem.breakdown) {
+    openNetworthPopover(nwItem.breakdown);
+  }
+});
+

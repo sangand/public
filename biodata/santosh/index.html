@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biodata - Santosh</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
   </head>
   <body>
     <div class="container" id="app"></div>
@@ -25,17 +25,17 @@
           document.body.appendChild(s);
         }
 
-        const variantScriptSrc = `data-${variant.toLowerCase()}.js?v=4`;
+        const variantScriptSrc = `data-${variant.toLowerCase()}.js?v=5`;
         loadScript(
           variantScriptSrc,
           function() {
-            loadScript('app.js?v=4');
+            loadScript('app.js?v=5');
           },
           function() {
             console.warn(`Failed to load ${variantScriptSrc}. Falling back to data-a.js.`);
             window.CURRENT_VARIANT = 'A';
-            loadScript('data-a.js?v=4', function() {
-              loadScript('app.js?v=4');
+            loadScript('data-a.js?v=5', function() {
+              loadScript('app.js?v=5');
             });
           }
         );

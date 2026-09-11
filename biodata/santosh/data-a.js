@@ -23,7 +23,67 @@ const DATA = {
         { "label": "Jun 2026 Payslip", "logLabel": "Payslip", "image": "images/proof_payslip-1.png" }
       ]
     },
-    { "label": "Net worth", "value": "~10 to 15 crores" },
+    {
+      "label": "Net worth",
+      "value": "~10 to 15 crores",
+      "breakdown": {
+        "title": "Net Worth Details",
+        "assets": [
+          {
+            "name": "House",
+            "amount": "₹1,00,00,000"
+          },
+          {
+            "name": "Cash + Equivalents",
+            "amount": "₹25,00,000"
+          },
+          {
+            "name": "PF",
+            "amount": "₹20,00,000"
+          },
+          {
+            "name": "Vehicles",
+            "amount": "₹30,00,000"
+          },
+          {
+            "name": "Equity - India",
+            "amount": "₹1,25,00,000"
+          },
+          {
+            "name": "Equity - US",
+            "amount": "₹9,00,00,000"
+          }
+        ],
+        "totalAssets": "₹12,00,00,000",
+        "liabilities": "Nil",
+        "notes": [
+          "1. I'd get ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my net worth as I'm not relying on it.",
+          "2. All the above numbers are approximates and computed as of Sep 2026"
+        ],
+        "faqs": [
+          {
+            "q": "Why no flat in Hyderabad despite having enough money?",
+            "a": "I don't see it as a good investment as there are better assets to invest. But I'll buy one if the girl needs emotional safety. In that case, she can choose the flat as per her liking."
+          },
+          {
+            "q": "Why not buy plots/agricultural lands/Gold?",
+            "a": "I don't see it as a good investment as there are better assets to invest."
+          },
+          {
+            "q": "Why to invest a lot in Indian equity?",
+            "a": "Indian equity gave far better returns than other assets in the last 50+ years. I'm expecting it to continue the same in future too as the whole economy is designed that way."
+          },
+          {
+            "q": "Why to keep most money in Broadcom shares?",
+            "a": "Broadcom is one of the beneficiaries of AI boom. So I'd like to keep my shares as long as it continues, to maximize returns. I'll shift the money to other assets when needed."
+          },
+          {
+            "q": "Why are you not investing anything in real estate?",
+            "a": "I see some drawbacks - liquidity risk and low residential-rental-yeild. Also, I see it as a game played and controlled by powerful people in the society. I don't want to be part of it as of now. If I've to invest, I might consider commercial properties (RIETs)."
+          }
+        ]
+      }
+    },
     {
       "label": "Family",
       "value": [
