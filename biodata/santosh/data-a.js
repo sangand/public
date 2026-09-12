@@ -42,6 +42,10 @@ const DATA = {
             "amount": "₹20,00,000"
           },
           {
+            "name": "PPF",
+            "amount": "₹2,50,000"
+          },
+          {
             "name": "Vehicles",
             "amount": "₹30,00,000"
           },
@@ -54,7 +58,7 @@ const DATA = {
             "amount": "₹9,00,00,000"
           }
         ],
-        "totalAssets": "₹12,00,00,000",
+        "totalAssets": "₹12,02,50,000",
         "liabilities": "Nil",
         "notes": [
           "1. I'd get ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my net worth as I'm not relying on it.",
