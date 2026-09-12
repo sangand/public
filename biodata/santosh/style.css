@@ -481,7 +481,7 @@ body {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .nw-table {
@@ -534,7 +534,7 @@ body {
   background: #eef5f2;
   color: #20453a;
   border-top: 2px solid #c2ded6;
-  border-bottom: 1px solid #c2ded6;
+  border-bottom: none;
 }
 
 .nw-table tfoot .nw-total-row td:last-child {
@@ -542,16 +542,40 @@ body {
   font-size: 1rem;
 }
 
-.nw-table tfoot .nw-liabilities-row td {
+.nw-liabilities-card {
   background: #fff;
-  color: #666;
-  font-weight: 600;
-  border-bottom: none;
+  border: 1px solid #e8e2dc;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
 }
 
-.nw-table tfoot .nw-liabilities-row td:last-child {
-  text-align: right;
-  color: #888;
+.nw-liabilities-label {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #2c2c2c;
+}
+
+.nw-liabilities-val {
+  font-weight: 600;
+  font-size: 0.92rem;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  color: #2c5246;
+}
+
+.nw-liabilities-val.is-nil {
+  background: #eef5f2;
+  color: #20453a;
+  border: 1px solid #c2ded6;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
 }
 
 .nw-note-box {

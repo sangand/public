@@ -438,6 +438,17 @@ function createNetworthPopover(breakdown) {
     `;
   }
 
+  let liabilitiesHtml = '';
+  if (breakdown.liabilities) {
+    const isNil = /^(nil|none|0|-|–)$/i.test(String(breakdown.liabilities).trim());
+    liabilitiesHtml = `
+      <div class="nw-liabilities-card">
+        <span class="nw-liabilities-label">Liabilities</span>
+        <span class="nw-liabilities-val ${isNil ? 'is-nil' : ''}">${breakdown.liabilities}</span>
+      </div>
+    `;
+  }
+
   const modalHtml = `
     <div id="networthModal" class="nw-modal" aria-hidden="true" role="dialog" aria-labelledby="networthModalTitle">
       <div class="nw-modal-overlay"></div>
@@ -466,14 +477,11 @@ function createNetworthPopover(breakdown) {
                   <td>Total Assets</td>
                   <td>${breakdown.totalAssets}</td>
                 </tr>
-                <tr class="nw-liabilities-row">
-                  <td>Liabilities</td>
-                  <td>${breakdown.liabilities}</td>
-                </tr>
               </tfoot>
             </table>
           </div>
 
+          ${liabilitiesHtml}
           ${noteHtml}
           ${faqsHtml}
         </div>

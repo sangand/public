@@ -30,7 +30,7 @@ const DATA = {
         "title": "Net Worth Details",
         "assets": [
           {
-            "name": "House",
+            "name": "Independent House",
             "amount": "₹1,00,00,000"
           },
           {
@@ -39,7 +39,7 @@ const DATA = {
           },
           {
             "name": "PF",
-            "amount": "₹20,00,000"
+            "amount": "₹20,50,000"
           },
           {
             "name": "PPF",
@@ -58,32 +58,36 @@ const DATA = {
             "amount": "₹9,00,00,000"
           }
         ],
-        "totalAssets": "₹12,02,50,000",
+        "totalAssets": "₹12,03,00,000",
         "liabilities": "Nil",
         "notes": [
           "1. I'd get ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my net worth as I'm not relying on it.",
-          "2. All the above numbers are approximates and computed as of Sep 2026"
+          "2. All the above numbers are approximates and computed as of Sep 2026."
         ],
         "faqs": [
           {
-            "q": "Why no flat in Hyderabad despite having enough money?",
-            "a": "I don't see it as a good investment as there are better assets to invest. But I'll buy one if the girl needs emotional safety. In that case, she can choose the flat as per her liking."
+            "q": "Why haven't you purchased a flat in Hyderabad yet?",
+            "a": "From an investment perspective, financial assets offer higher compounding and liquidity. However, a home is about family comfort and peace of mind. I am open to buying a home after marriage so the girl and I can choose the locality and flat together according to her preferences."
           },
           {
-            "q": "Why not buy plots/agricultural lands/Gold?",
-            "a": "I don't see it as a good investment as there are better assets to invest."
+            "q": "Why not buy plots or agricultural lands?",
+            "a": "Plots and agricultural lands carry high liquidity risk, legal verification issues, encroachment concerns, and maintenance hassles. I prefer liquid, hassle-free financial assets that compound passively without physical overhead."
           },
           {
-            "q": "Why to invest a lot in Indian equity?",
-            "a": "Indian equity gave far better returns than other assets in the last 50+ years. I'm expecting it to continue the same in future too as the whole economy is designed that way."
+            "q": "Why not invest in Gold?",
+            "a": "Gold is good for capital preservation, but it is a non-productive asset—it produces no business earnings or dividends. It also comes with theft risks, bank locker fees, making charges, and resale deductions. While buying gold jewellery for personal or family occasions is natural, as an investment vehicle I prefer liquid, hassle-free equities that actively compound wealth."
           },
           {
-            "q": "Why to keep most money in Broadcom shares?",
-            "a": "Broadcom is one of the beneficiaries of AI boom. So I'd like to keep my shares as long as it continues, to maximize returns. I'll shift the money to other assets when needed."
+            "q": "Why are you not investing in real estate?",
+            "a": "Residential rental yields in India are quite low (~2-3%) and physical properties carry liquidity risk and maintenance/tenant hassles. If I decide to allocate capital to real estate in the future, I prefer liquid, hassle-free commercial instruments like REITs."
           },
           {
-            "q": "Why are you not investing anything in real estate?",
-            "a": "I see some drawbacks - liquidity risk and low residential-rental-yeild. Also, I see it as a game played and controlled by powerful people in the society. I don't want to be part of it as of now. If I've to invest, I might consider commercial properties (RIETs)."
+            "q": "Why invest substantially in Indian equity?",
+            "a": "Historically, Indian equity has significantly outpaced inflation and physical assets over the long term. Given India's ongoing economic growth, disciplined equity investing remains one of the best vehicles for long-term wealth compounding."
+          },
+          {
+            "q": "Why keep a large portion in Broadcom shares?",
+            "a": "These shares are part of my compensation and performance grants. Broadcom is a global leader and a primary beneficiary of the AI and semiconductor boom. While I am holding them to capitalize on this growth cycle, I actively monitor the allocation and plan to diversify into other assets over time."
           }
         ]
       }
