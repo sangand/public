@@ -55,10 +55,10 @@ const DATA = {
           },
           {
             "name": "Equity - US",
-            "amount": "₹9,00,00,000"
+            "amount": "₹8,50,00,000"
           }
         ],
-        "totalAssets": "₹12,03,00,000",
+        "totalAssets": "₹11,53,00,000",
         "liabilities": "Nil",
         "notes": [
           "1. I'd get ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my net worth as I'm not relying on it.",
