@@ -256,7 +256,7 @@ function attachModalScrollContainment(modalElement, scrollSelector) {
       touchStartY = touchY;
 
       const isAtTop = scrollable.scrollTop <= 0;
-      const isAtBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+      const isAtBottom = Math.ceil(scrollable.scrollTop + scrollable.clientHeight) >= scrollable.scrollHeight;
 
       if ((isAtTop && deltaY > 0) || (isAtBottom && deltaY < 0)) {
         if (e.cancelable) e.preventDefault();
@@ -273,7 +273,7 @@ function attachModalScrollContainment(modalElement, scrollSelector) {
 
     const deltaY = e.deltaY;
     const isAtTop = scrollable.scrollTop <= 0;
-    const isAtBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+    const isAtBottom = Math.ceil(scrollable.scrollTop + scrollable.clientHeight) >= scrollable.scrollHeight;
 
     if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
       if (e.cancelable) e.preventDefault();
