@@ -8,7 +8,7 @@ const DATA = {
   },
   "info": [
     { "label": "Name", "value": "Gandi Santosh Kumar" },
-    { "label": "Born", "value": "10-Jan-1989, 1:46 PM" },
+    { "label": "Born", "value": "10-Jan-1989, 1:46 PM, Razam" },
     { "label": "Physique", "value": "169 cms, fair, lean, 64 kg" },
     { "label": "Horoscope", "value": "Dhanishta-3, Kumbha rāsi" },
     { "label": "Education", "value": "B.Tech.(CSE), Andhra university college of engineering" },

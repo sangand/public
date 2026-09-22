@@ -8,7 +8,7 @@ const DATA = {
   },
   "info": [
     { "label": "Name", "value": "Gandi Santosh Kumar" },
-    { "label": "Born", "value": "10-Jan-1989, 1:46 PM" },
+    { "label": "Born", "value": "10-Jan-1989, 1:46 PM, Razam" },
     { "label": "Physique", "value": "169 cms, fair, lean, 64 kg" },
     { "label": "Horoscope", "value": "Dhanishta-3, Kumbha rāsi" },
     { "label": "Education", "value": "B.Tech.(CSE), Andhra university college of engineering" },
@@ -61,8 +61,8 @@ const DATA = {
         "totalAssets": "₹11,53,00,000",
         "liabilities": "Nil",
         "notes": [
-          "1. I'd get ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my net worth as I'm not relying on it.",
-          "2. All the above numbers are approximates and computed as of Sep 2026."
+          "1. I'd inherit ancestral property (agricultural lands) of 1.5 acres whose current market value is around 30,00,000. But I'm not counting it in my networth as I'm not relying on it. But it can also be counted.",
+          "2. All the above numbers are approximates and computed as of September 2026."
         ],
         "faqs": [
           {
